@@ -1,13 +1,16 @@
 <html>
 <head>
     <script src="https://aframe.io/releases/1.0.4/aframe.min.js"></script>
+    <script src="https://unpkg.com/aframe-animation-component@^4.1.2/dist/aframe-animation-component.min.js"></script>
 </head>
 <body>
 <a-scene>
     <a-assets>
         <a-asset-item id="loDuck" src="https://raw.githubusercontent.com/KhronosGroup/glTF-Sample-Models/master/2.0/Duck/glTF/Duck.gltf"></a-asset-item>
     </a-assets>
-    <a-entity gltf-model="#loDuck" position="1 1 0" ></a-entity>
+    <a-entity rotation="0 0 0" animation="property: rotation; to: 0 360 0; loop: true; dur: 10000">
+        <a-entity gltf-model="#loDuck" position="5 0 0" rotation="0 180 0"></a-entity>
+    </a-entity>
 
     <a-sky color="lightblue"></a-sky>
 </a-scene>
