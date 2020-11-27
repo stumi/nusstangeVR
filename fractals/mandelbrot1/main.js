@@ -11,7 +11,7 @@
     var magnificationFactor = 600;
     var panX = 0;
     var panY = 0;
-    var magnificationFactor = 2900;
+    var magnificationFactor = 8000;
     var panX = 0.7;
     var panY = 0.6;
     for(var x=0; x < myCanvas.width; x++) {
@@ -33,7 +33,7 @@
 function checkIfBelongsToMandelbrotSet(x,y) {
     var realComponentOfResult = x;
     var imaginaryComponentOfResult = y;
-    var maxIterations = 100;
+    var maxIterations = 8000;
     for(var i = 0; i < maxIterations; i++) {
         var tempRealComponent = realComponentOfResult * realComponentOfResult
             - imaginaryComponentOfResult * imaginaryComponentOfResult
