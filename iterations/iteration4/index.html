@@ -1,39 +1,46 @@
 <html>
 <head>
     <script src="https://aframe.io/releases/1.0.4/aframe.min.js"></script>
-    <script src="https://unpkg.com/aframe-animation-component@^4.1.2/dist/aframe-animation-component.min.js"></script>
 </head>
 <body>
-<a-scene>
+<a-scene id="aScene">
     <a-assets>
         <a-asset-item id="loDuck" src="https://raw.githubusercontent.com/KhronosGroup/glTF-Sample-Models/master/2.0/Duck/glTF/Duck.gltf"></a-asset-item>
     </a-assets>
-    <a-entity id="duckCircle" rotation="0 0 0" animation="property: rotation; to: 0 360 0; loop: true; dur: 10000; easing: linear">
-    </a-entity>
 
     <a-sky color="lightblue"></a-sky>
 </a-scene>
 <script>
     //Duckscript
     //create a "Duckcircle"
-    //x cos y sin
-    let amountOfDucks = 12;
+    let aScene = document.getElementById('aScene');
+    let amountOfDucks = 24;
     let radius = 5;
-    let duckCircleElement = document.getElementById('duckCircle');
-    for(let i = 0; i < amountOfDucks; i++) {
-        let angle = 360/amountOfDucks*i;
-        let angleRAD = angle*Math.PI/ 180;
-        let x = Math.cos(angleRAD) * radius;
-        let z = Math.sin(angleRAD) * radius;
+    let amountOfDuckCircles = 24;
 
-        //let newDuckling = '<a-entity gltf-model="#loDuck" position="'+x+' 0 '+z+'" rotation="0 '+180+angle+' 0"></a-entity>';
+    for(let i = 0; i < amountOfDuckCircles; i++) {
+        let angle = 360/amountOfDuckCircles*i;
+        let duckCircleElement = document.createElement('a-entity');
+        duckCircleElement.setAttribute('rotation', angle + ' 0 0');
+        duckCircleElement.setAttribute('class', 'duckCircle');
+        duckCircleElement.setAttribute('animation', 'property: rotation; to: '+angle+' 360 0; loop: true; dur: 10000; easing: linear')
+        //Ducklings inside Duckcircle
+        for(let i = 0; i < amountOfDucks; i++) {
+            let angle = 360/amountOfDucks*i;
+            let duckAngle = 180+angle*-1;
+            let angleRAD = angle*Math.PI/ 180;
+            let x = Math.cos(angleRAD) * radius;
+            let z = Math.sin(angleRAD) * radius;
 
-        let newDuckling = document.createElement('a-entity');
-        newDuckling.setAttribute('gltf-model', '#loDuck');
-        newDuckling.setAttribute('position', x+' 0 '+z);
-        newDuckling.setAttribute('rotation', '0 '+180+angle+' 0');
-        console.log(angle)
-        duckCircleElement.appendChild(newDuckling);
+            let newDuckling = document.createElement('a-entity');
+            newDuckling.setAttribute('gltf-model', '#loDuck');
+            newDuckling.setAttribute('position', x+' 0 '+z);
+            newDuckling.setAttribute('rotation', '0 '+duckAngle+' 0');
+            //newDuckling.setAttribute('animation', 'property: position; to: 0 .1 0; loop: true; dur: 10000; easing: linear');
+            duckCircleElement.appendChild(newDuckling);
+        }
+
+        aScene.appendChild(duckCircleElement);
     }
 </script>
 </body>
