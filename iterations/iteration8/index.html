@@ -1,0 +1,56 @@
+<html>
+<head>
+    <script src="https://aframe.io/releases/1.0.4/aframe.min.js"></script>
+</head>
+<body>
+<a-scene id="aScene">
+    <a-sky radius="9999" color="black"></a-sky>
+    <a-entity id="rig" position="0 0 0">
+        <a-entity id="camera" camera look-controls></a-entity>
+    </a-entity>
+</a-scene>
+<script>
+    //Lightscript
+    //Endless light walk
+
+    let aScene = document.getElementById('aScene');
+    let cameraRig = document.getElementById('rig');
+    let cameraPosition = {
+        x: 0,
+        y: 0,
+        z: 0
+    }
+    let frameCount = 0
+    let starInterval = 60;
+    createStars(240, 0, 0, starInterval*-1, 100, 100, 120);
+    function updateLights() {
+
+        cameraPosition.z -= 1;
+        cameraRig.object3D.position.set(cameraPosition.x, cameraPosition.y, cameraPosition.z);
+        if(cameraPosition.z % 20 == 0)createStars(30, 0, 0, cameraPosition.z-starInterval, 100, 100, 40);
+        frameCount++
+        setTimeout(updateLights, 1000/60);
+    }
+
+    function createStars(amount, center_x, center_y, center_z, xspread, yspread, zspread) {
+        for(let i = 0; i < amount; i++) {
+            let lightElement = document.createElement('a-sphere');
+            let x = center_x + getRandomArbitrary(xspread/2*-1, xspread/2);
+            let y = center_y + getRandomArbitrary(yspread/2*-1, yspread/2);
+            let z = center_z + getRandomArbitrary(zspread/2*-1, zspread/2);
+            lightElement.setAttribute('class', 'lightpoint');
+            lightElement.setAttribute('color', 'white');
+            lightElement.setAttribute('radius', '0.2');
+            lightElement.setAttribute('position', x + ' ' + y + ' ' + z);
+            aScene.appendChild(lightElement);
+        }
+    }
+
+    function getRandomArbitrary(min, max) {
+        return Math.random() * (max - min) + min;
+    }
+
+    updateLights();
+</script>
+</body>
+</html>
