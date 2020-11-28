@@ -1,0 +1,34 @@
+<html>
+<head>
+    <script src="https://aframe.io/releases/1.0.4/aframe.min.js"></script>
+</head>
+<body>
+<a-scene id="aScene">
+    <a-sky color="black"></a-sky>
+    <a-sphere position="0 2 -100" radius=".2" color="white"
+              animation="property: position;
+                         dur: 2000;
+                         easing: linear;
+                         loop: true;
+                         to: 0 2 10">
+    </a-sphere>
+
+</a-scene>
+<script>
+    //Lightscript
+    //create a "Lighttunnel"
+
+    let aScene = document.getElementById('aScene');
+    let amountOfLights = 24;
+    let radius = 5;
+
+    for(let i = 0; i < amountOfLights; i++) {
+        let lightElement = document.createElement('a-sphere');
+        lightElement.setAttribute('class', 'lightpoint');
+        lightElement.setAttribute('animation', 'property: position; dur: 2000; easing: linear; loop: true; to: 0 2 10')
+
+        aScene.appendChild(lightElement);
+    }
+</script>
+</body>
+</html>

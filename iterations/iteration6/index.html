@@ -1,0 +1,29 @@
+<html>
+<head>
+    <script src="https://aframe.io/releases/1.0.4/aframe.min.js"></script>
+    <script src="https://cdn.rawgit.com/matthewbryancurtis/aframe-star-system-component/db4f1030/index.js"></script>
+</head>
+<body>
+<a-scene id="aScene">
+    <a-sky color="black"></a-sky>
+    <a-entity star-system></a-entity>
+</a-scene>
+<script>
+    //Lightscript
+    //create a "Lighttunnel"
+    let aScene = document.getElementById('aScene');
+    let amountOfLights = 24;
+    let radius = 5;
+
+    for(let i = 0; i < amountOfLights; i++) {
+        let lightElement = document.createElement('a-light');
+        lightElement.setAttribute('rotation', angle + ' 0 0');
+        lightElement.setAttribute('class', 'duckCircle');
+        lightElement.setAttribute('animation', 'property: rotation; to: '+angle+' 360 0; loop: true; dur: 10000; easing: linear')
+
+
+        aScene.appendChild(lightElement);
+    }
+</script>
+</body>
+</html>
