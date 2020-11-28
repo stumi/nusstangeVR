@@ -19,15 +19,24 @@
     //create a "Lighttunnel"
 
     let aScene = document.getElementById('aScene');
-    let amountOfLights = 24;
+    let amountOfLights = 240;
     let radius = 5;
 
     for(let i = 0; i < amountOfLights; i++) {
         let lightElement = document.createElement('a-sphere');
+        let x = getRandomArbitrary(-50, 50);
+        let y = getRandomArbitrary(-50, 50);
+        let z = getRandomArbitrary(-10, -110);
         lightElement.setAttribute('class', 'lightpoint');
+        lightElement.setAttribute('color', 'white');
+        lightElement.setAttribute('radius', '0.2');
+        lightElement.setAttribute('position', x + ' ' + y + ' ' + z);
         lightElement.setAttribute('animation', 'property: position; dur: 2000; easing: linear; loop: true; to: 0 2 10')
-
+        console.log(lightElement)
         aScene.appendChild(lightElement);
+    }
+    function getRandomArbitrary(min, max) {
+        return Math.random() * (max - min) + min;
     }
 </script>
 </body>
