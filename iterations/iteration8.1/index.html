@@ -1,6 +1,7 @@
 <html>
 <head>
     <script src="https://aframe.io/releases/1.0.4/aframe.min.js"></script>
+    <script src="https://cdn.rawgit.com/matthewbryancurtis/aframe-star-system-component/db4f1030/index.js"></script>
 </head>
 <body>
 <a-scene id="aScene">
@@ -8,6 +9,7 @@
     <a-entity id="rig" position="0 0 0">
         <a-entity id="camera" camera look-controls></a-entity>
     </a-entity>
+    <a-entity id="starSystem" star-system></a-entity>
 </a-scene>
 <script>
     //Lightscript
@@ -15,36 +17,43 @@
 
     let aScene = document.getElementById('aScene');
     let cameraRig = document.getElementById('rig');
+    let starSystem = document.getElementById('starSystem');
     let cameraPosition = {
         x: 0,
         y: 0,
         z: 0
     }
     let frameCount = 0
-    let starInterval = 5000;
+    let starInterval = 60;
     let starSpheres = [];
-    createStars(1000, 0, 0, starInterval*-1, 100, 100, 10000);
+    let totalStarCount = 5000;
+    createStars(totalStarCount, 0, 0, starInterval*-1, 200, 200, 200);
     function updateLights() {
 
         cameraPosition.z -= 1;
         cameraRig.object3D.position.set(cameraPosition.x, cameraPosition.y, cameraPosition.z);
-        //if(cameraPosition.z % 20 == 0)createStars(30, 0, 0, cameraPosition.z-starInterval, 100, 100, 40);
+        starSystem.object3D.position.set(cameraPosition.x, cameraPosition.y, cameraPosition.z);
+        if(cameraPosition.z % 5 == 0)createStars(100, 0, 0, cameraPosition.z-200, 200, 200, 40);
         frameCount++
         setTimeout(updateLights, 1000/60);
     }
 
-    function createStars(amount, center_x, center_y, center_z, xspread, yspread, zspread) {
+    async function createStars(amount, center_x, center_y, center_z, xspread, yspread, zspread) {
         for(let i = 0; i < amount; i++) {
             let starSpehere = document.createElement('a-sphere');
             let x = center_x + getRandomArbitrary(xspread/2*-1, xspread/2);
             let y = center_y + getRandomArbitrary(yspread/2*-1, yspread/2);
             let z = center_z + getRandomArbitrary(zspread/2*-1, zspread/2);
             starSpehere.setAttribute('class', 'lightpoint');
-            starSpehere.setAttribute('color', 'white');
+            starSpehere.setAttribute('color', 'yellow');
             starSpehere.setAttribute('radius', '0.2');
             starSpehere.setAttribute('position', x + ' ' + y + ' ' + z);
             aScene.appendChild(starSpehere);
-            starSpheres.push(starSpehere)
+            starSpheres.push(starSpehere);
+            //remove oldest star
+            if(starSpeheres.length > totalStarCount){
+                starSpheres.shift().remove();
+            }
         }
     }
 
