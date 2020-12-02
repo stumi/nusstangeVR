@@ -27,7 +27,7 @@
                 let v = ([lookAt.x/40, lookAt.y/40, lookAt.z/40]);
                 //console.log(v);
                 let pos = camera.object3D.position;
-                this.el.setAttribute("line",  "start: "+pos.x+", "+pos.y+", "+(pos.z)+"; end: "+(pos.x+(-v[1]))+", "+(pos.y+v[0])+", "+(pos.z+v[2])+"; color: red");
+                //this.el.setAttribute("line",  "start: "+pos.x+", "+pos.y+", "+(pos.z)+"; end: "+(pos.x+(-v[1]))+", "+(pos.y+v[0])+", "+(pos.z+v[2])+"; color: red");
                 //console.log(camera.object3D.position);
             }
         }
@@ -35,11 +35,21 @@
 
     AFRAME.registerComponent("testeru", {
         tick: function(){
-            //let lookAt = camera.object3D.quaternion;
-            let lookAt = camera.getAttribute("rotation");
-            let v = scalarTimesVector(0.01, getUnitVector([lookAt.x/40, lookAt.y/40, -1]));
+            //let rot = camera.object3D.quaternion;
+            let rot = camera.object3D.rotation; //Rad
+            //let rot = camera.getAttribute("rotation"); //Deg
+
+            let alpha = rot.x;
+            let beta = rot.y;
+
+            //https://stackoverflow.com/questions/30011741/3d-vector-defined-by-2-angles
+            let z = -Math.cos(alpha) * Math.cos(beta);
+            let y = Math.sin(alpha) * Math.cos(beta);
+            let x = -Math.sin(beta);
+
+            let v = scalarTimesVector(0.01, getUnitVector([x, y, z]));
             let pos = camera.object3D.position;
-            camera.object3D.position.set(pos.x + (-v[1]), pos.y + v[0], pos.z + v[2]);
+            camera.object3D.position.set(pos.x + v[0], pos.y + v[1], pos.z + v[2]);
         }
     });
 </script>
