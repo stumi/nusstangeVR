@@ -26,8 +26,20 @@
                 let lookAt = camera.object3D.quaternion;
                 let v = ([lookAt.x/40, lookAt.y/40, lookAt.z/40]);
                 //console.log(v);
-                this.el.setAttribute("line",  "start: 0, 0, -1; end: "+(-v[1])+", "+v[0]+", "+v[2]+"; color: red");
+                let pos = camera.object3D.position;
+                this.el.setAttribute("line",  "start: "+pos.x+", "+pos.y+", "+(pos.z)+"; end: "+(pos.x+(-v[1]))+", "+(pos.y+v[0])+", "+(pos.z+v[2])+"; color: red");
+                //console.log(camera.object3D.position);
             }
+        }
+    });
+
+    AFRAME.registerComponent("testeru", {
+        tick: function(){
+            //let lookAt = camera.object3D.quaternion;
+            let lookAt = camera.getAttribute("rotation");
+            let v = scalarTimesVector(0.01, getUnitVector([lookAt.x/40, lookAt.y/40, -1]));
+            let pos = camera.object3D.position;
+            camera.object3D.position.set(pos.x + (-v[1]), pos.y + v[0], pos.z + v[2]);
         }
     });
 </script>
@@ -38,13 +50,14 @@
     <a-entity id="rig" position="0 0 0">
         <a-entity id="camera" camera look-controls></a-entity>
     </a-entity>
-    <script>
-        let cube = document.createElement('a-box');
-        document.getElementById("a-scene").appendChild(cube);
-        cube.object3D.position.set(0, 0, -1);
-        cube.object3D.scale.set(0.02, 0.02, 0.02);
-        cube.object3D.rotation.set(0, 0, 0);
-    </script>
+
+    <a-box position="1 0 3" rotation="0 0 0" color="#FF00FF"></a-box>
+    <a-box position="-1 0 3" rotation="0 0 0" color="#00FFFF"></a-box>
+    <a-box position="-1 0 -3" rotation="0 0 0" color="#00FFFF"></a-box>
+    <a-box position="1 0 -3" rotation="0 0 0" color="#FF00FF"></a-box>
+    <a-box position="3 0 0" rotation="0 0 0" color="#FF00FF"></a-box>
+    <a-box position="-3 0 0" rotation="0 0 0" color="#00FFFF"></a-box>
+    <a-entity testeru></a-entity>
 </a-scene>
 
 <script>
@@ -52,6 +65,11 @@
 	    var mag = Math.sqrt(Math.pow(v[0],2) + Math.pow(v[1],2) + Math.pow(v[2],2));
 
 	    return [v[0]/mag, v[1]/mag, v[2]/mag];
+    }
+
+    
+    function scalarTimesVector(s, v){
+        return [s*v[0], s*v[1], s*v[2]];
     }
 </script>
 
