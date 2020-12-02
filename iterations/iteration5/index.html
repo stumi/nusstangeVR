@@ -1,40 +1,59 @@
-<html>
+<!DOCTYPE html>
+<html lang="en">
 <head>
+    <meta charset="UTF-8">
     <script src="https://aframe.io/releases/1.0.4/aframe.min.js"></script>
-    <script src="https://unpkg.com/aframe-animation-component@^4.1.2/dist/aframe-animation-component.min.js"></script>
 </head>
 <body>
-<a-scene>
-    <a-assets>
-        <a-asset-item id="loDuck" src="https://raw.githubusercontent.com/KhronosGroup/glTF-Sample-Models/master/2.0/Duck/glTF/Duck.gltf"></a-asset-item>
-    </a-assets>
-    <a-entity id="duckCircle" rotation="0 0 0" animation="property: rotation; to: 0 360 0; loop: true; dur: 10000; easing: linear">
-    </a-entity>
-
-    <a-sky color="lightblue"></a-sky>
-</a-scene>
 <script>
-    //Duckscript
-    //create a "Duckcircle"
-    //x cos y sin
-    let amountOfDucks = 12;
-    let radius = 5;
-    let duckCircleElement = document.getElementById('duckCircle');
-    for(let i = 0; i < amountOfDucks; i++) {
-        let angle = 360/amountOfDucks*i;
-        let angleRAD = angle*Math.PI/ 180;
-        let x = Math.cos(angleRAD) * radius;
-        let z = Math.sin(angleRAD) * radius;
+    AFRAME.registerComponent("lineru", {
+        rotationCache: null,
 
-        //let newDuckling = '<a-entity gltf-model="#loDuck" position="'+x+' 0 '+z+'" rotation="0 '+180+angle+' 0"></a-entity>';
+        init: function(){
+            this.rotationCache = [camera.object3D.quaternion.x, camera.object3D.quaternion.y, camera.object3D.quaternion.z];
+            console.log(this.rotationCache);
+        },
 
-        let newDuckling = document.createElement('a-entity');
-        newDuckling.setAttribute('gltf-model', '#loDuck');
-        newDuckling.setAttribute('position', x+' 0 '+z);
-        newDuckling.setAttribute('rotation', '0 '+180+angle+' 0');
-        console.log(angle)
-        duckCircleElement.appendChild(newDuckling);
+        tick: function(){
+            this.updateLookAt();
+        },
+
+        updateLookAt: function(){
+            if(camera.object3D.quaternion.x != this.rotationCache[0]){
+                //console.log(camera.object3D.quaternion);
+                //console.log(camera.getAttribute('rotation'));
+                this.rotationCache = [camera.object3D.quaternion.x, camera.object3D.quaternion.y, camera.object3D.quaternion.z];
+                let lookAt = camera.object3D.quaternion;
+                let v = ([lookAt.x/40, lookAt.y/40, lookAt.z/40]);
+                //console.log(v);
+                this.el.setAttribute("line",  "start: 0, 0, -1; end: "+(-v[1])+", "+v[0]+", "+(v[2])+"; color: red");
+            }
+        }
+    });
+</script>
+<a-scene id="a-scene">
+    <a-sky color="lightgreen"></a-sky>
+    <a-entity id="lineru" lineru line="start: 0, 0, 0; end: 2 0 0; color: red"></a-entity>
+
+    <a-entity id="rig" position="0 0 0">
+        <a-entity id="camera" camera look-controls></a-entity>
+    </a-entity>
+    <script>
+        let cube = document.createElement('a-box');
+        document.getElementById("a-scene").appendChild(cube);
+        cube.object3D.position.set(0, 0, -1);
+        cube.object3D.scale.set(0.02, 0.02, 0.02);
+        cube.object3D.rotation.set(0, 0, 0);
+    </script>
+</a-scene>
+
+<script>
+    function getUnitVector(v){
+	    var mag = Math.sqrt(Math.pow(v[0],2) + Math.pow(v[1],2) + Math.pow(v[2],2));
+
+	    return [v[0]/mag, v[1]/mag, v[2]/mag];
     }
 </script>
+
 </body>
 </html>
