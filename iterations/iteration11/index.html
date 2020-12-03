@@ -77,7 +77,6 @@
     AFRAME.registerComponent('game-of-life', {
         dependencies: ['life-box'],
         schema: {
-            target: { default: '', type: 'selector' },
             name: { default: '' },
             countPerDimension: { default: 10 },
             nextUpdateTime: { default: 0 },
@@ -85,18 +84,14 @@
             lifeChildrenFuture: { default: {} },
         },
         init: function() {
-            var subset = this.data.target.object3D
             this.data.lifeChildren = new Map();
             this.data.lifeChildrenFuture = new Map();
             for (let i = 0; i < this.data.countPerDimension; i++) {
                 for (let j = 0; j < this.data.countPerDimension; j++) {
                     for (let k = 0; k < this.data.countPerDimension; k++) {
-                        let clone = subset.clone();
-                        let entity = document.createElement('a-entity');
+                        let entity = document.createElement('a-box');
 
-                        entity.setObject3D('clone', clone);
-
-
+                        entity.object3D.scale.set(1, 1, 1);
                         entity.object3D.position.set(i, j, k);
 
                         entity.object3D.visible = false;
@@ -200,8 +195,7 @@
     <a-entity id="rig" mover position="-10 0 30">
         <a-entity id="camera" camera look-controls></a-entity>
     </a-entity>
-    <a-entity game-of-life="target: #life-box; name: gameOflife; countPerDimension: 10">
-        <a-box life-box="" id="life-box"></a-box>
+    <a-entity game-of-life="name: gameOflife; countPerDimension: 10">
     </a-entity>
 </a-scene>
 
