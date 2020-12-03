@@ -1,0 +1,211 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <script src="https://aframe.io/releases/1.0.4/aframe.min.js"></script>
+    <script>
+        function getUnitVector(v){
+            var mag = Math.sqrt(Math.pow(v[0],2) + Math.pow(v[1],2) + Math.pow(v[2],2));
+
+            return [v[0]/mag, v[1]/mag, v[2]/mag];
+        }
+
+
+        function scalarTimesVector(s, v){
+            return [s*v[0], s*v[1], s*v[2]];
+        }
+
+        //https://stackoverflow.com/questions/1484506/random-color-generator
+        function getRandomColor() {
+            var letters = '0123456789ABCDEF';
+            var color = '#';
+            for (var i = 0; i < 6; i++) {
+                color += letters[Math.floor(Math.random() * 16)];
+            }
+            return color;
+        }
+
+        function neighbourPositions(myPos, neighbours) {
+            let x = myPos.x;
+            let y = myPos.y;
+            let z = myPos.z;
+
+            //Neighbour List
+            for (let i = -1; i < 2; i++) {
+                for (let j = -1; j < 2; j++) {
+                    for (let k = -1; k < 2; k++) {
+                        if(i === j && i === k && i === 0) continue;
+                        /*
+                        // Create neighbour Position Object
+                        let neighbour = {
+                            x: x+i,
+                            y: y+j,
+                            z: z+k,
+                        }
+                        */
+
+                        // Create neighbour Position String
+                        let neighbour = (x+i) + '' + (y+j) + '' + (z+k);
+                        neighbours.push(neighbour);
+                    }
+                }
+            }
+        }
+        function createConwayRules3D() {
+            conwayRules = new Map();
+            for(let i = 0; i < 27; i++) {
+                conwayRules.set(i, 0);
+            }
+            conwayRules.set(4, 1);
+            conwayRules.set(5, 1);
+            conwayRules.set(6, 2);
+            conwayRules.set(7, 0);
+            conwayRules.set(8, 2);
+            return conwayRules;
+        }
+        let ruleSet = createConwayRules3D();
+    </script>
+</head>
+<body>
+<script>
+    // GAME OF LIFE 3D TEST
+    let life = {
+        width: 1,
+        color: 'lightblue',
+    }
+
+    AFRAME.registerComponent('game-of-life', {
+        dependencies: ['life-box'],
+        schema: {
+            target: { default: '', type: 'selector' },
+            name: { default: '' },
+            countPerDimension: { default: 10 },
+            nextUpdateTime: { default: 0 },
+            lifeChildren: { default: {} },
+            lifeChildrenFuture: { default: {} },
+        },
+        init: function() {
+            var subset = this.data.target.object3D
+            this.data.lifeChildren = new Map();
+            this.data.lifeChildrenFuture = new Map();
+            for (let i = 0; i < this.data.countPerDimension; i++) {
+                for (let j = 0; j < this.data.countPerDimension; j++) {
+                    for (let k = 0; k < this.data.countPerDimension; k++) {
+                        let clone = subset.clone();
+                        let entity = document.createElement('a-entity');
+
+                        entity.setObject3D('clone', clone);
+
+
+                        entity.object3D.position.set(i, j, k);
+
+                        entity.object3D.visible = false;
+                        if(Math.random() > .9){ //10% alive
+                            entity.object3D.visible = true;
+                        }
+
+                        entity.setAttribute('color', getRandomColor());
+                        entity.setAttribute('pos', i+'.'+j+'.'+k)
+                        entity.setAttribute('id', i+''+j+''+k);
+                        let posString = i+''+j+''+k;
+                        entity.setAttribute('life-box', 'posString: '+posString+'; pos: {'+i+','+j+','+k+'};');
+
+                        this.data.lifeChildren.set(posString, this.el.appendChild(entity));
+                    }
+                }
+            }
+        },
+        tick: function (time) {
+            if(time > this.data.nextUpdateTime){
+
+                let lifeChidren = this.data.lifeChildren;
+                let lifeChildrenFuture = this.data.lifeChildrenFuture;
+                lifeChidren.forEach(function (lifeChild){
+                    let lifeChildComponent = lifeChild.components["life-box"]
+                    let livingNeighbours = 0;
+                    // Check each Neighbour
+                    lifeChildComponent.data.neighbourPositions.forEach(function (neighbourPos){
+                        if(lifeChidren.has(neighbourPos)) {
+                            if(lifeChidren.get(neighbourPos).components["life-box"].el.object3D.visible) livingNeighbours++;
+                        }
+                    })
+
+                    //Determine Future of lifeChild
+                    switch (ruleSet.get(livingNeighbours)) {
+                        case 0: //dead
+                            lifeChildrenFuture.set(lifeChildComponent.data.posString, {component: lifeChildComponent, lives: false});
+                            break;
+                        case 1: //stay alive, if you were
+                            lifeChildrenFuture.set(lifeChildComponent.data.posString, {component: lifeChildComponent, lives: lifeChildComponent.el.object3D.visible});
+                            break
+                        case 2: //stay alive / be born
+                            lifeChildrenFuture.set(lifeChildComponent.data.posString, {component: lifeChildComponent, lives: true});
+                            break
+                    }
+                });
+
+                lifeChildrenFuture.forEach(function (lifeChild){
+                    lifeChild.component.el.object3D.visible = lifeChild.lives;
+                });
+
+                // every second
+                this.data.nextUpdateTime = time + 1000;
+            }
+        }
+    });
+
+    AFRAME.registerComponent('life-box', {
+        schema: {
+            posString: { default: '000' },
+            neighbourPositions: { default: []},
+            pos: {},
+        },
+        init: function() {
+            //console.log(this.el.getAttribute('position'))
+            this.updateNeighbourPositions();
+        },
+        tick: function (time) {
+        },
+        updateNeighbourPositions: function () {
+            neighbourPositions(this.el.object3D.position, this.data.neighbourPositions);
+        }
+    });
+
+
+    let movingSpeed = 0;
+
+
+    AFRAME.registerComponent("mover", {
+        tick: function(){
+            //let rot = camera.object3D.quaternion;
+            let rot = camera.object3D.rotation; //Rad
+            //let rot = camera.getAttribute("rotation"); //Deg
+
+            let alpha = rot.y;
+            let beta = rot.x;
+
+            //https://stackoverflow.com/questions/30011741/3d-vector-defined-by-2-angles
+            let z = Math.cos(alpha) * Math.cos(beta);
+            let x = Math.sin(alpha) * Math.cos(beta);
+            let y = -Math.sin(beta);
+
+            let v = scalarTimesVector(movingSpeed, getUnitVector([x, y, z]));
+            let pos = camera.object3D.position;
+            camera.object3D.position.set(pos.x - v[0], pos.y - v[1], pos.z - v[2]);
+        }
+    });
+</script>
+<a-scene id="a-scene">
+    <a-sky color="grey"></a-sky>
+    <a-entity id="rig" mover position="-10 0 30">
+        <a-entity id="camera" camera look-controls></a-entity>
+    </a-entity>
+    <a-entity game-of-life="target: #life-box; name: gameOflife; countPerDimension: 10">
+        <a-box life-box="" id="life-box"></a-box>
+    </a-entity>
+</a-scene>
+
+
+
+</body>
+</html>
