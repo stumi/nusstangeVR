@@ -6,17 +6,17 @@
 </head>
 <body>
 <script>
-    AFRAME.registerComponent("testeru", {
+    AFRAME.registerComponent("mover", {
         tick: function(){
-            let pos = camera.object3D.position;
-            camera.object3D.position.set(pos.x, pos.y, pos.z-0.01);
+            let pos = this.el.object3D.position;
+            this.el.object3D.position.set(pos.x, pos.y, pos.z-0.01);
         }
     });
 </script>
 <a-scene id="a-scene">
     <a-sky color="#444444"></a-sky>
 
-    <a-entity id="rig" position="0 0 0">
+    <a-entity id="rig" mover position="0 0 0">
         <a-entity id="camera" camera look-controls></a-entity>
     </a-entity>
 
@@ -30,16 +30,7 @@
 </a-scene>
 
 <script>
-    function getUnitVector(v){
-	    var mag = Math.sqrt(Math.pow(v[0],2) + Math.pow(v[1],2) + Math.pow(v[2],2));
 
-	    return [v[0]/mag, v[1]/mag, v[2]/mag];
-    }
-
-    
-    function scalarTimesVector(s, v){
-        return [s*v[0], s*v[1], s*v[2]];
-    }
 </script>
 
 </body>
