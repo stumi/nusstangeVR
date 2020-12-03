@@ -33,7 +33,7 @@
         cameraPosition.z -= 1;
         cameraRig.object3D.position.set(cameraPosition.x, cameraPosition.y, cameraPosition.z);
         starSystem.object3D.position.set(cameraPosition.x, cameraPosition.y, cameraPosition.z);
-        if(cameraPosition.z % 5 == 0)createStars(100, 0, 0, cameraPosition.z-200, 200, 200, 40);
+        if(cameraPosition.z % 5 == 0)createStars(1000, 0, 0, cameraPosition.z-200, 200, 200, 40);
         frameCount++
         setTimeout(updateLights, 1000/60);
     }
@@ -46,7 +46,7 @@
             let z = center_z + getRandomArbitrary(zspread/2*-1, zspread/2);
             starSpehere.setAttribute('class', 'lightpoint');
             starSpehere.setAttribute('color', 'yellow');
-            starSpehere.setAttribute('radius', '0.2');
+            starSpehere.setAttribute('radius', '2');
             starSpehere.setAttribute('position', x + ' ' + y + ' ' + z);
             aScene.appendChild(starSpehere);
             starSpheres.push(starSpehere);

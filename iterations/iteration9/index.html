@@ -1,0 +1,66 @@
+<html>
+<head>
+    <script src="https://aframe.io/releases/1.0.4/aframe.min.js"></script>
+</head>
+<body>
+<script>
+    AFRAME.registerComponent('box-circle-holder', {
+        schema: {
+            target: { default: '', type: 'selector' },
+            name: { default: '' }
+        },
+        init: function() {
+            var data = this.data;
+            var el = this.el;
+            var subset = data.target.object3D
+            for (var i = 0; i < 10; i++) {
+                var clone = subset.clone();
+                var entity = document.createElement('a-entity');
+                el.appendChild(entity);
+                entity.setAttribute('my-box', '');
+                clone.visible = true;
+                clone.position.x += 5 * Math.random();
+                clone.position.y += 5 * Math.random();
+                clone.position.z -= 5 * Math.random();
+                entity.setObject3D('clone', clone);
+            }
+        },
+        tick: function (time) {
+            /*
+            let el = this.el;
+            let rotationTmp = this.rotationTmp = this.rotationTmp || {x: 0, y: 0, z: 0};
+            let rotation = el.getAttribute('rotation');
+            rotationTmp.x = rotation.x + 0.1;
+            rotationTmp.y = rotation.y + 0.1;
+            rotationTmp.z = rotation.z + 0.1;
+            el.setAttribute('rotation', rotationTmp);*/
+        }
+    });
+    AFRAME.registerComponent('my-box', {
+        init: function() {
+            console.log('I got initialised')
+        },
+        tick: function (time) {
+            let el = this.el;
+            let rotationTmp = this.rotationTmp = this.rotationTmp || {x: 0, y: 0, z: 0};
+            let rotation = el.getAttribute('rotation');
+            rotationTmp.x = rotation.x + 0.3;
+            rotationTmp.y = rotation.y + 0.1;
+            rotationTmp.z = rotation.z + 2;
+            el.setAttribute('rotation', rotationTmp);
+        },
+        multiple: false
+    });
+</script>
+<a-scene id="aScene">
+    <a-sky radius="9999" color="black"></a-sky>
+    <a-entity id="rig" position="0 0 0">
+        <a-entity id="camera" camera look-controls></a-entity>
+    </a-entity>
+    <a-entity box-circle-holder="target: #my-box; name: box-circle-holder;">
+        <a-box position="0 0 -10" my-box id="my-box" color="lightblue"></a-box>
+    </a-entity>
+</a-scene>
+
+</body>
+</html>

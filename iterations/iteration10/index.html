@@ -39,17 +39,17 @@
             let rot = camera.object3D.rotation; //Rad
             //let rot = camera.getAttribute("rotation"); //Deg
 
-            let alpha = rot.x;
-            let beta = rot.y;
+            let alpha = rot.y;
+            let beta = rot.x;
 
             //https://stackoverflow.com/questions/30011741/3d-vector-defined-by-2-angles
-            let z = -Math.cos(alpha) * Math.cos(beta);
-            let y = Math.sin(alpha) * Math.cos(beta);
-            let x = -Math.sin(beta);
+            let z = Math.cos(alpha) * Math.cos(beta);
+            let x = Math.sin(alpha) * Math.cos(beta);
+            let y = -Math.sin(beta);
 
             let v = scalarTimesVector(0.01, getUnitVector([x, y, z]));
             let pos = camera.object3D.position;
-            camera.object3D.position.set(pos.x + v[0], pos.y + v[1], pos.z + v[2]);
+            camera.object3D.position.set(pos.x - v[0], pos.y - v[1], pos.z - v[2]);
         }
     });
 </script>
