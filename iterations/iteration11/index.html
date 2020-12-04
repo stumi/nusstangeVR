@@ -100,10 +100,11 @@
                         }
 
                         entity.setAttribute('color', getRandomColor());
-                        entity.setAttribute('pos', i+'.'+j+'.'+k)
                         entity.setAttribute('id', i+''+j+''+k);
+
+                        //Problem: 11 1 1, 1 11 1, 1 1 11 = 1111
                         let posString = i+''+j+''+k;
-                        entity.setAttribute('life-box', 'posString: '+posString+'; pos: {'+i+','+j+','+k+'};');
+                        entity.setAttribute('life-box', 'posString: '+posString+';');
 
                         this.data.lifeChildren.set(posString, this.el.appendChild(entity));
                     }

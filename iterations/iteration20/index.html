@@ -29,19 +29,9 @@
         }
     });
 
-    AFRAME.registerComponent("box-spawner", {
+    AFRAME.registerComponent("agent-spawner", {
         init: function(){
             this.scene = document.getElementById("a-scene");
-            this.boxSpawned = false;
-
-            for(let z = -renderDistance; z < renderDistance; z++){
-                for(let x = -Math.round(renderDistance/boxSpacing) - boxSpacing/2; x < renderDistance; x++){
-                    this.spawnBox(x*boxSpacing, 0, -z*boxSpacing);
-                }
-
-                //this.spawnBox(1, 0, -i*boxSpacing);
-                //this.spawnBox(-1, 0, -i*boxSpacing);
-            }
         },
 
         tick: function(){
@@ -68,11 +58,11 @@
             }
         },
 
-        spawnBox: function(x, y, z){
+        spawnAgent: function(x, y, z){
             //console.log("Spawn Box at "+x+", "+y+", "+z+"");
             let newBox = document.createElement('a-box');
             newBox.setAttribute('despawner', '');
-            newBox.object3D.scale.set(1, 1000, 1);
+            newBox.object3D.scale.set(0.2, 0.2, 0.2);
             newBox.object3D.position.set(x, y, z);
             newBox.setAttribute('color', "#00"+Math.round(Math.random()*89+10)+""+Math.round(Math.random()*89+10));
             this.scene.appendChild(newBox);
