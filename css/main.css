@@ -1,0 +1,102 @@
+@import url('https://fonts.googleapis.com/css2?family=Roboto:wght@300&display=swap');
+body {
+    margin: 0;
+    overflow-x: hidden;
+    background-color: #111111;
+    color: white;
+    font-family: 'Roboto', sans-serif;
+}
+* {
+    box-sizing: border-box;
+    border: none;
+}
+.titleBlock {
+    height: 70vh;
+}
+.titleBlock h1 {
+    padding-top: 20vh;
+    font-size: 3em;
+    text-align: center;
+}
+.titleBlock p {
+    text-align: center;
+}
+.documentation {
+    width: 90vw;
+    max-width: 1300px;
+    margin: auto;
+    border-bottom: 1px grey solid;
+    margin-bottom: 80px;
+}
+.documentation a{
+    text-decoration: none;
+    color: #00a379;
+}
+.documentation a:hover{
+    text-decoration: underline;
+}
+.documentation article {
+    margin-bottom: 80px;
+}
+.documentation article p{
+    max-width: 60%;
+    line-height: 1.5em;
+    letter-spacing: 0.02em;
+    font-weight: 300;
+}
+.documentation article a.preview {
+    width: 100%;
+    margin-right: 2%;
+    display: block;
+}
+.documentation article a.preview:last-child {
+    margin-right: 0;
+}
+.documentation article a.preview iframe {
+    width: 100%;
+    height: calc(90vw / 16 * 9);
+    max-height: calc(1300px / 16 * 9);
+    border: none;
+}
+.documentation article .side-by-side {
+    display: flex;
+    flex-grow: 1;
+    justify-content: space-between;
+}
+
+.documentation article .side-by-side a.preview iframe {
+    height: calc(44.1vw / 16 * 9);
+    max-height: calc(637px / 16 * 9);
+    border: none;
+}
+.documentation article pre {
+    padding: 0;
+    border: 0;
+    margin-bottom: 30px;
+}
+.documentation article pre:first-line {
+    line-height: 0;
+}
+.hljs {
+    background-color: #222222;
+    padding: 1.5em;
+}
+
+/*Custom Webkit Scrollbars https://codepen.io/MathieuRichard/pen/HAgnm*/
+.documentation article pre code::-webkit-scrollbar {
+    width: 5px;
+    height: 5px;
+}
+
+.documentation article pre code::-webkit-scrollbar-thumb {
+    background: #919191;
+}
+
+.documentation article pre code::-webkit-scrollbar-track {
+    background: #333333;
+}
+
+#display iframe {
+    width: 100vw;
+    height: 100vh;
+}

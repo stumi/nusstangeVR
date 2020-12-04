@@ -45,7 +45,7 @@
                         */
 
                         // Create neighbour Position String
-                        let neighbour = (x+i) + '' + (y+j) + '' + (z+k);
+                        let neighbour = 'x' + (x+i) + 'y' + (y+j) + 'z' + (z+k);
                         neighbours.push(neighbour);
                     }
                 }
@@ -102,8 +102,7 @@
                         entity.setAttribute('color', getRandomColor());
                         entity.setAttribute('id', i+''+j+''+k);
 
-                        //Problem: 11 1 1, 1 11 1, 1 1 11 = 1111
-                        let posString = i+''+j+''+k;
+                        let posString = 'x' +i+'y'+j+'z'+k;
                         entity.setAttribute('life-box', 'posString: '+posString+';');
 
                         this.data.lifeChildren.set(posString, this.el.appendChild(entity));
@@ -152,17 +151,16 @@
 
     AFRAME.registerComponent('life-box', {
         schema: {
-            posString: { default: '000' },
-            neighbourPositions: { default: []},
-            pos: {},
+            posString: { default: 'x0y0z0' },
+            neighbourPositions: { default: []}
         },
         init: function() {
-            //console.log(this.el.getAttribute('position'))
             this.updateNeighbourPositions();
         },
         tick: function (time) {
         },
         updateNeighbourPositions: function () {
+            this.data.neighbourPositions.length = 0;
             neighbourPositions(this.el.object3D.position, this.data.neighbourPositions);
         }
     });
@@ -173,9 +171,7 @@
 
     AFRAME.registerComponent("mover", {
         tick: function(){
-            //let rot = camera.object3D.quaternion;
             let rot = camera.object3D.rotation; //Rad
-            //let rot = camera.getAttribute("rotation"); //Deg
 
             let alpha = rot.y;
             let beta = rot.x;
