@@ -1,193 +1,251 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <script src="https://aframe.io/releases/1.0.4/aframe.min.js"></script>
+    <!DOCTYPE html>
+    <html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <script src="https://aframe.io/releases/1.0.4/aframe.min.js"></script>
+        <script>
+            function getUnitVector(v){
+                var mag = Math.sqrt(Math.pow(v[0],2) + Math.pow(v[1],2) + Math.pow(v[2],2));
+
+                return [v[0]/mag, v[1]/mag, v[2]/mag];
+            }
+
+
+            function scalarTimesVector(s, v){
+                return [s*v[0], s*v[1], s*v[2]];
+            }
+
+            //https://stackoverflow.com/questions/1484506/random-color-generator
+            function getRandomColor() {
+                var letters = '0123456789ABCDEF';
+                var color = '#';
+                for (var i = 0; i < 6; i++) {
+                    color += letters[Math.floor(Math.random() * 16)];
+                }
+                return color;
+            }
+
+            function neighbourPositions(myPos) {
+                let neighbours = [];
+                let x = myPos.x;
+                let y = myPos.y;
+                let z = myPos.z;
+
+                //Neighbour List
+                for (let i = -1; i < 2; i++) {
+                    for (let j = -1; j < 2; j++) {
+                        for (let k = -1; k < 2; k++) {
+                            if(i === j && i === k && i === 0) continue;
+                            // Create neighbour Position String
+                            let neighbour = 'x' + (x+i) + 'y' + (y+j) + 'z' + (z+k);
+                            neighbours.push(neighbour);
+                        }
+                    }
+                }
+                return neighbours;
+            }
+            function createConwayRules3D() {
+                conwayRules = new Map();
+                for(let i = 0; i < 27; i++) {
+                    conwayRules.set(i, 0);
+                }
+                conwayRules.set(4, 1);
+                conwayRules.set(5, 1);
+                conwayRules.set(6, 2);
+                conwayRules.set(7, 2);
+                conwayRules.set(8, 1);
+                return conwayRules;
+            }
+            let ruleSet = createConwayRules3D();
+        </script>
+    </head>
+    <body>
     <script>
-        function getUnitVector(v){
-            var mag = Math.sqrt(Math.pow(v[0],2) + Math.pow(v[1],2) + Math.pow(v[2],2));
-
-            return [v[0]/mag, v[1]/mag, v[2]/mag];
+        // GAME OF LIFE 3D TEST
+        let life = {
+            width: 1,
+            color: 'lightblue',
         }
 
-
-        function scalarTimesVector(s, v){
-            return [s*v[0], s*v[1], s*v[2]];
-        }
-
-        //https://stackoverflow.com/questions/1484506/random-color-generator
-        function getRandomColor() {
-            var letters = '0123456789ABCDEF';
-            var color = '#';
-            for (var i = 0; i < 6; i++) {
-                color += letters[Math.floor(Math.random() * 16)];
-            }
-            return color;
-        }
-
-        function neighbourPositions(myPos, neighbours) {
-            let x = myPos.x;
-            let y = myPos.y;
-            let z = myPos.z;
-
-            //Neighbour List
-            for (let i = -1; i < 2; i++) {
-                for (let j = -1; j < 2; j++) {
-                    for (let k = -1; k < 2; k++) {
-                        if(i === j && i === k && i === 0) continue;
-                        // Create neighbour Position String
-                        let neighbour = 'x' + (x+i) + 'y' + (y+j) + 'z' + (z+k);
-                        neighbours.push(neighbour);
-                    }
-                }
-            }
-        }
-        function createConwayRules3D() {
-            conwayRules = new Map();
-            for(let i = 0; i < 27; i++) {
-                conwayRules.set(i, 0);
-            }
-            conwayRules.set(4, 1);
-            conwayRules.set(5, 1);
-            conwayRules.set(6, 2);
-            conwayRules.set(7, 2);
-            conwayRules.set(8, 1);
-            return conwayRules;
-        }
-        let ruleSet = createConwayRules3D();
-    </script>
-</head>
-<body>
-<script>
-    // GAME OF LIFE 3D TEST
-    let life = {
-        width: 1,
-        color: 'lightblue',
-    }
-
-    AFRAME.registerComponent('game-of-life', {
-        dependencies: ['life-box'],
-        schema: {
-            name: { default: '' },
-            countPerDimension: { default: 10 },
-            nextUpdateTime: { default: 0 },
-            lifeChildren: { default: {} },
-            lifeChildrenFuture: { default: {} },
-        },
-        init: function() {
-            this.data.lifeChildren = new Map();
-            this.data.lifeChildrenFuture = new Map();
-            for (let i = 0; i < this.data.countPerDimension; i++) {
-                for (let j = 0; j < this.data.countPerDimension; j++) {
-                    for (let k = 0; k < this.data.countPerDimension; k++) {
-                        let entity = document.createElement('a-box');
-
-                        entity.object3D.scale.set(1, 1, 1);
-                        entity.object3D.position.set(i, j, k);
-
-                        entity.object3D.visible = false;
-                        if(Math.random() > .9){ //10% alive
-                            entity.object3D.visible = true;
+        AFRAME.registerComponent('game-of-life', {
+            dependencies: ['life-box'],
+            schema: {
+                name: { default: '' },
+                countPerDimension: { default: 10 },
+                nextUpdateTime: { default: 0 },
+                lifeChildren: { default: {} },
+                lifeChildrenNeighbours: { default: {} },
+                lifeChildrenFuture: { default: {} },
+            },
+            init: function() {
+                this.data.lifeChildren = new Map();
+                this.data.lifeChildrenNeighbours = new Map();
+                this.data.lifeChildrenFuture = new Map();
+                for (let i = 0; i < this.data.countPerDimension; i++) {
+                    for (let j = 0; j < this.data.countPerDimension; j++) {
+                        for (let k = 0; k < this.data.countPerDimension; k++) {
+                            let alive = false;
+                            if(Math.random() > .90) { //10% alive
+                                alive = true
+                            }
+                            this.birthChild(i, j, k, alive);
                         }
-
-                        entity.setAttribute('color', getRandomColor());
-                        entity.setAttribute('id', i+''+j+''+k);
-
-                        let posString = 'x' +i+'y'+j+'z'+k;
-                        entity.setAttribute('life-box', 'posString: '+posString+';');
-
-                        this.data.lifeChildren.set(posString, this.el.appendChild(entity));
                     }
                 }
-            }
-        },
-        tick: function (time) {
-            if(time > this.data.nextUpdateTime){
 
-                let lifeChidren = this.data.lifeChildren;
+                console.log('initial group berth complete')
+            },
+            tick: function (time) {
+                if(time > this.data.nextUpdateTime){
+                    this.updateLifeChildrenState();
+                    // every second
+                    this.data.nextUpdateTime = time + 1000;
+                }
+            },
+            updateLifeChildrenState: function () {
+                let lifeChildren = this.data.lifeChildren;
                 let lifeChildrenFuture = this.data.lifeChildrenFuture;
-                lifeChidren.forEach(function (lifeChild){
-                    let lifeChildComponent = lifeChild.components["life-box"]
-                    let livingNeighbours = 0;
-                    // Check each Neighbour
-                    lifeChildComponent.data.neighbourPositions.forEach(function (neighbourPos){
-                        if(lifeChidren.has(neighbourPos)) {
-                            if(lifeChidren.get(neighbourPos).components["life-box"].el.object3D.visible) livingNeighbours++;
-                        }
-                    })
+                lifeChildrenFuture.clear(); //Empty the future
+                let lifeChildrenNeighbours = this.data.lifeChildrenNeighbours;
 
-                    //Determine Future of lifeChild
-                    switch (ruleSet.get(livingNeighbours)) {
-                        case 0: //dead
-                            lifeChildrenFuture.set(lifeChildComponent.data.posString, {component: lifeChildComponent, lives: false});
-                            break;
-                        case 1: //stay alive, if you were
-                            lifeChildrenFuture.set(lifeChildComponent.data.posString, {component: lifeChildComponent, lives: lifeChildComponent.el.object3D.visible});
-                            break
-                        case 2: //stay alive / be born
-                            lifeChildrenFuture.set(lifeChildComponent.data.posString, {component: lifeChildComponent, lives: true});
-                            break
+                let self = this;
+                //https://stackoverflow.com/questions/20279484/how-to-access-the-correct-this-inside-a-callback
+
+
+                lifeChildren.forEach(function (lifeChild){
+                    let lifeChildComponent = lifeChild.components["life-box"];
+                    let lifeChildPosString = lifeChildComponent.data.posString;
+                    if(!lifeChildrenFuture.has(lifeChildPosString)){
+                        self.determineFutureLifeChild(lifeChildPosString, lifeChildComponent);
+                        //check all the neighbours of this lifechild
+                        lifeChildrenNeighbours.get(lifeChildPosString).forEach(function (neighbourPos){
+                            if(!lifeChildrenFuture.has(neighbourPos) && lifeChildrenNeighbours.has(neighbourPos)) {
+                                self.determineFutureLifeChild(neighbourPos, lifeChildren.get(neighbourPos));
+                            }
+                        });
+                    }
+                });
+                this.setFutureStateOfLifeChildren();
+            },
+            getLivingNeighbours: function (lifeChildPosString){
+                let lifeChildrenNeighbours = this.data.lifeChildrenNeighbours;
+                let lifeChildren = this.data.lifeChildren;
+                let livingNeighbours = 0;
+                // Check each Neighbour
+                lifeChildrenNeighbours.get(lifeChildPosString).forEach(function (neighbourPos){
+                    if(lifeChildren.has(neighbourPos)) {
+                        livingNeighbours++;
+                    }
+                })
+                return livingNeighbours;
+            },
+            determineFutureLifeChild: function (lifeChildPosString, lifeChildComponent){
+                let lifeChildrenFuture = this.data.lifeChildrenFuture;
+
+                let livingNeighbours = this.getLivingNeighbours(lifeChildPosString);
+                //Alive at the moment?
+                let alive = (lifeChildComponent!==undefined);
+
+                //Determine Future of lifeChild
+                switch (ruleSet.get(livingNeighbours)) {
+                    case 0: //dead
+                        if(alive) {
+                            lifeChildrenFuture.set(lifeChildPosString, {component: lifeChildComponent, lives: false});
+                        }
+                        break;
+                    case 1: //stay alive, if you were
+                        if(alive) {
+                            lifeChildrenFuture.set(lifeChildPosString, {component: lifeChildComponent, lives: true});
+                        }
+                        break
+                    case 2: //stay alive / be born
+                        lifeChildrenFuture.set(lifeChildPosString, {component: lifeChildComponent, lives: true});
+                        break
+                }
+            },
+            setFutureStateOfLifeChildren: function () {
+                let self = this;
+                this.data.lifeChildrenFuture.forEach(function (lifeChild, key){
+                    if(lifeChild.component === undefined && lifeChild.lives){
+                        let x = key.match(/x(.*)y/).pop();
+                        let y = key.match(/y(.*)z/).pop();
+                        let z = key.match(/z(.*)/).pop();
+                        self.birthChild(x, y, z, true);
+                    }
+
+                    //remove lifechilds that dont live anymore
+                    if(!lifeChild.lives){
+                        self.killChild(key);
                     }
                 });
 
-                lifeChildrenFuture.forEach(function (lifeChild){
-                    lifeChild.component.el.object3D.visible = lifeChild.lives;
-                });
+            },
+            birthChild: function (x, y, z, alive) {
+                let posString = 'x' +x+'y'+y+'z'+z;
+                if(alive) {
+                    let entity = document.createElement('a-box');
+                    entity.object3D.scale.set(1, 1, 1);
+                    entity.object3D.position.set(x, y, z);
 
-                // every second
-                this.data.nextUpdateTime = time + 1000;
+                    entity.setAttribute('color', getRandomColor());
+                    entity.setAttribute('id', posString);
+                    entity.setAttribute('life-box', 'posString: '+posString+';');
+
+                    this.data.lifeChildren.set(posString, this.el.appendChild(entity));
+                }
+                if(!this.data.lifeChildrenNeighbours.has(posString)){
+                    this.data.lifeChildrenNeighbours.set(posString, neighbourPositions({x: x, y: y, z:z}));
+                }
+            },
+            killChild: function (posString){
+                let childToKill = this.data.lifeChildren.get(posString)
+                childToKill.remove();
+                this.data.lifeChildren.delete(posString)
             }
-        }
-    });
+        });
 
-    AFRAME.registerComponent('life-box', {
-        schema: {
-            posString: { default: 'x0y0z0' },
-            neighbourPositions: { default: []}
-        },
-        init: function() {
-            this.updateNeighbourPositions();
-        },
-        tick: function (time) {
-        },
-        updateNeighbourPositions: function () {
-            this.data.neighbourPositions.length = 0;
-            neighbourPositions(this.el.object3D.position, this.data.neighbourPositions);
-        }
-    });
+        AFRAME.registerComponent('life-box', {
+            schema: {
+                posString: { default: 'x0y0z0' },
+            },
+            init: function() {
+            },
+            tick: function (time) {
+            },
+        });
 
 
-    let movingSpeed = 0.02;
+        let movingSpeed = 0.02;
 
 
-    AFRAME.registerComponent("mover", {
-        tick: function(){
-            let rot = camera.object3D.rotation; //Rad
+        AFRAME.registerComponent("mover", {
+            tick: function(){
+                let rot = camera.object3D.rotation; //Rad
 
-            let alpha = rot.y;
-            let beta = rot.x;
+                let alpha = rot.y;
+                let beta = rot.x;
 
-            //https://stackoverflow.com/questions/30011741/3d-vector-defined-by-2-angles
-            let z = Math.cos(alpha) * Math.cos(beta);
-            let x = Math.sin(alpha) * Math.cos(beta);
-            let y = -Math.sin(beta);
+                //https://stackoverflow.com/questions/30011741/3d-vector-defined-by-2-angles
+                let z = Math.cos(alpha) * Math.cos(beta);
+                let x = Math.sin(alpha) * Math.cos(beta);
+                let y = -Math.sin(beta);
 
-            let v = scalarTimesVector(movingSpeed, getUnitVector([x, y, z]));
-            let pos = camera.object3D.position;
-            camera.object3D.position.set(pos.x - v[0], pos.y - v[1], pos.z - v[2]);
-        }
-    });
-</script>
-<a-scene id="a-scene">
-    <a-sky color="grey"></a-sky>
-    <a-entity id="rig" mover position="-10 0 30">
-        <a-entity id="camera" camera look-controls></a-entity>
-    </a-entity>
-    <a-entity game-of-life="name: gameOflife; countPerDimension: 20">
-    </a-entity>
-</a-scene>
+                let v = scalarTimesVector(movingSpeed, getUnitVector([x, y, z]));
+                let pos = camera.object3D.position;
+                camera.object3D.position.set(pos.x - v[0], pos.y - v[1], pos.z - v[2]);
+            }
+        });
+    </script>
+    <a-scene id="a-scene">
+        <a-sky color="grey"></a-sky>
+        <a-entity id="rig" mover position="-10 0 30">
+            <a-entity id="camera" camera look-controls></a-entity>
+        </a-entity>
+        <a-entity game-of-life="name: gameOflife; countPerDimension: 10">
+        </a-entity>
+    </a-scene>
 
 
 
-</body>
-</html>
+    </body>
+    </html>
