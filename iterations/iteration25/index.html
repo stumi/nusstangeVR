@@ -7,95 +7,131 @@
 </head>
 <body>
 <script>
-    var renderDistance = 50;
-    var movementSpeed = 0.1;
+    var tunnelRotation = 0;
+
+    var renderDistance = 30;
+    var movementSpeed = 0.05;
 
     var refreshRate = 1000;
     var nextUpdateTime = 0;
 
     var userLookAt = [0,0,0];
+    var userRotationDeg = [0,0,0];
 
-    var agents = [];
-    var maxAgents = 2000;
-    var scene = null; //Initalised in agent-spawner
+    var walls = [];
+    var maxWalls = 16;
+    var scene = null; //Initalised in wall-manager
 
-    function spawnAgent(x, y, z){
-        //console.log("Spawn Agent at "+x+", "+y+", "+z+"");
-        if(agents.length < maxAgents){
-            let newAgent = document.createElement('a-box');
-            newAgent.setAttribute('agent', '');
-            //newAgent.setAttribute('id', Math.random()*1000000);
-            newAgent.object3D.scale.set(3, 3, 3);
-            newAgent.object3D.position.set(x, y, z);
-            newAgent.setAttribute('color', "#00"+Math.round(Math.random()*89+10)+""+Math.round(Math.random()*89+10));
-            scene.appendChild(newAgent);
+    var color = getRandomColor();
+    
+
+    //https://stackoverflow.com/questions/1484506/random-color-generator
+    function getRandomColor() {
+        var letters = '0123456789ABCDEF';
+        var color = '#';
+        for (var i = 0; i < 6; i++) {
+            color += letters[Math.floor(Math.random() * 16)];
         }
+        return color;
     }
 
-    function despawnAgent(agent){
-        let index = agents.findIndex(otherAgent => otherAgent === agent);
-        agents.splice(index, 1);
-        agent.el.remove();
+    function spawnSegment(x, y, z, rotX, rotY, rotZ){
+        let newEntity = document.createElement('a-entity');
+        let walls = [];
+
+        //Square
+        walls.push(spawnWall(-10, 0, 0, 0, 45, 0));
+        walls.push(spawnWall(10, 0, 0, 0, -45, 0));
+        walls.push(spawnWall(0, 10, 0, 45, 0, 0));
+        walls.push(spawnWall(0, -10, 0, -45, 0, 0));
+
+        //Square
+        /*walls.push(spawnWall(-10, 0, 0, 0, 45, 0));
+        walls.push(spawnWall(10, 0, 0, 0, -45, 0));
+        walls.push(spawnWall(0, 10, 0, 45, 0, 0));
+        walls.push(spawnWall(0, -10, 0, -45, 0, 0));*/
+        
+        for(w = 0; w < walls.length; w++){
+            newEntity.appendChild(walls[w]);
+        }
+
+        newEntity.setAttribute('position', x+" "+y+" "+z);
+        newEntity.setAttribute('rotation', rotX+" "+rotY+" "+rotZ+tunnelRotation);
+        tunnelRotation += 10;
+        /*newEntity.object3D.position.set(x, y, z);
+        newEntity.object3D.rotation.set(rotX, rotY, rotZ);*/
+        scene.appendChild(newEntity);
     }
 
-    AFRAME.registerComponent("agent", {
+    function spawnWall(x, y, z, rotX, rotY, rotZ){
+        //console.log("Spawn Wall at "+x+", "+y+", "+z+"");
+        let newWall = null;
+        if(true /*walls.length <= maxWalls*/){
+            newWall = document.createElement('a-plane');
+            newWall.setAttribute('wall', '');
+            newWall.setAttribute('height', '20');
+            newWall.setAttribute('width', '20');
+            newWall.setAttribute('position', x+" "+y+" "+z);
+            newWall.setAttribute('rotation', rotX+" "+rotY+" "+rotZ);
+            newWall.setAttribute('material', 'side: double');
+            newWall.setAttribute('color', color);
+            //newWall.setAttribute('color', "#00"+Math.round(Math.random()*29+60)+""+Math.round(Math.random()*29+60));
+        }
+        return newWall;
+    }
+
+    function despawnWall(wall){
+        let index = walls.findIndex(otherWall => otherWall === wall);
+        walls.splice(index, 1);
+        wall.el.remove();
+    }
+
+    AFRAME.registerComponent("wall", {
         init: function(){
-            agents.push(this);
+            walls.push(this);
         },
         
         refresh: function(){
-            let status = null;
-
-            //Remove Agents that are out of renderDistance
+            //Remove Walls that are out of renderDistance
             let thisPos = this.el.object3D.position;
             let camPos = camera.object3D.position;
 
             let thisV = [thisPos.x, thisPos.y, thisPos.z];
             let camV = [camPos.x, camPos.y, camPos.z];
 
-            //Decide if the agent dies
             let distance = getMagnitude(subtractVectors(thisV, camV));
-            if(distance > renderDistance || distance < 30){
-                despawnAgent(this);
-                status = "died"
-            }
-            
-            for(let i = 0; i < 10; i++){
-                if(status != "died" && Math.random() > 0.3){ //Decide if a new Agent is spawned
-                    /*let pos = this.el.object3D.position;
-                    spawnAgent(pos.x+(Math.random()-0.5)*8,
-                                pos.y+(Math.random()-0.5)*8,
-                                pos.z+(Math.random()-0.5)*8);*/
-                }
-            }
+
+            /*if( distance < 10){
+                despawnWall(this);
+            }*/
         }
     });
 
-    AFRAME.registerComponent("agent-manager", {
+    AFRAME.registerComponent("wall-manager", {
         init: function(){
             scene = document.getElementById("a-scene");
+            scene.setAttribute('background', 'color: '+color);
+            scene.setAttribute('fog', 'type: linear; color: '+color+'; near: 8; far: 12');
         },
 
         tick: function(){
             if(Date.now() >= nextUpdateTime){
-                //Decide if a new Agent is spawned
-                for(let i = 0; i < 500; i++){
-                    if(Math.random() > 0.3){
-                        let camPos = camera.object3D.position;
-                        let v = scalarTimesVector(9, getUnitVector(userLookAt));
+                console.log("Refresh");
+                let camPos = camera.object3D.position;
+                let v = scalarTimesVector(0.2, getUnitVector(userLookAt));
 
-                        let randX = camPos.x+(Math.random()-0.5)*600-v[0]*renderDistance;
-                        let randY = camPos.y+(Math.random()-0.5)*500-v[1]*renderDistance;
-                        let randZ = camPos.z+(Math.random()-0.5)*600-v[2]*renderDistance;
+                let spawnX = camPos.x-v[0]*renderDistance;
+                let spawnY = camPos.y-v[1]*renderDistance;
+                let spawnZ = camPos.z-v[2]*renderDistance;
 
-                        spawnAgent(randX, randY, randZ);
-                    }
+                spawnSegment(spawnX, spawnY, spawnZ, userRotationDeg[1], userRotationDeg[0], userRotationDeg[2]);
+                
+                for(w = 0; w < walls.length; w++){
+                    walls[w].el.components.wall.refresh();
                 }
-
-                for(a = 0; a < agents.length; a++){
-                    if(agents[a].el.components.agent.refresh() == "died"){
-                        a--;
-                    }
+                
+                while(walls.length > maxWalls){
+                    despawnWall(walls[0]);
                 }
                 
                 nextUpdateTime = Date.now() + refreshRate;
@@ -109,6 +145,8 @@
 
             let alpha = rot.y;
             let beta = rot.x;
+
+            userRotationDeg = [alpha*180/Math.PI, beta*180/Math.PI, 0];
 
             //https://stackoverflow.com/questions/30011741/3d-vector-defined-by-2-angles
             let z = Math.cos(alpha) * Math.cos(beta);
@@ -124,10 +162,10 @@
     });
 </script>
 
-<a-scene id="a-scene">
-    <a-sky color="#444444"></a-sky>
+<a-scene id="a-scene" background="color: #003333" fog="type: linear; color: #003333; near: 8; far: 12">
+    <!--a-sky color="#444444"></a-sky-->
 
-    <a-entity agent-manager></a-entity>
+    <a-entity wall-manager></a-entity>
 
     <a-entity id="rig" movement position="0 0 0">
         <a-entity id="camera" camera look-controls></a-entity>
