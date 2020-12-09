@@ -111,7 +111,7 @@
         init: function(){
             scene = document.getElementById("a-scene");
             scene.setAttribute('background', 'color: '+color);
-            scene.setAttribute('fog', 'type: linear; color: '+color+'; near: 8; far: 12');
+            scene.setAttribute('fog', 'type: linear; color: '+color+'; near: 12; far: 12');
         },
 
         tick: function(){
@@ -134,6 +134,9 @@
                     despawnWall(walls[0]);
                 }
                 
+                scene.setAttribute('background', 'color: '+color);
+                scene.setAttribute('fog', 'type: linear; color: '+color+'; near: 12; far: 12');
+                color = getRandomColor();
                 nextUpdateTime = Date.now() + refreshRate;
             }
         }
@@ -162,7 +165,7 @@
     });
 </script>
 
-<a-scene id="a-scene" background="color: #003333" fog="type: linear; color: #003333; near: 8; far: 12">
+<a-scene id="a-scene">
     <!--a-sky color="#444444"></a-sky-->
 
     <a-entity wall-manager></a-entity>
