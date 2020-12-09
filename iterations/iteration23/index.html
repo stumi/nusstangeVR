@@ -1,0 +1,95 @@
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Test</title>
+    <script src="https://aframe.io/releases/1.0.4/aframe.min.js"></script>
+</head>
+<body>
+<a-scene>
+    <a-box position="-1 0.5 -3" rotation="0 45 0" color="#4CC3D9"></a-box>
+    <a-sphere position="0 1.25 -5" radius="1.25" color="#EF2D5E"></a-sphere>
+    <a-cylinder position="1 0.75 -3" radius="0.5" height="1.5" color="#FFC65D"></a-cylinder>
+    <a-plane position="0 0 -4" rotation="-90 0 0" width="4" height="4" color="#7BC8A4"></a-plane>
+    <a-sky color="black"></a-sky>
+</a-scene>
+<script type="module">
+    import { RenderPass } from 'https://unpkg.com/three@0.120.1/examples/jsm/postprocessing/RenderPass.js';
+    import { EffectComposer } from 'https://unpkg.com/three@0.120.1/examples/jsm/postprocessing/EffectComposer.js';
+    import { UnrealBloomPass } from 'https://unpkg.com/three@0.120.1/examples/jsm/postprocessing/UnrealBloomPass.js';
+
+    AFRAME.registerSystem("postprocessing", {
+
+            composer: null,
+            originalRenderMethod: null,
+
+            /**
+             * Initialises this system.
+             */
+
+            init() {
+
+                const sceneEl = this.sceneEl;
+
+                const scene = sceneEl.object3D;
+                const renderer = sceneEl.renderer;
+                const render = renderer.render;
+                const camera = sceneEl.camera;
+
+                const clock = new THREE.Clock();
+                const composer = new EffectComposer(renderer);
+
+                this.composer = composer;
+
+                const renderPass = new RenderPass(scene, camera);
+                composer.addPass(renderPass);
+                this.originalRenderMethod = render;
+
+
+                const bloomPass = new UnrealBloomPass( new THREE.Vector2( window.innerWidth, window.innerHeight ), 1.5, 0.4, 0.85 );
+                bloomPass.threshold = .7;
+                bloomPass.strength = .4;
+                bloomPass.radius = 2;
+
+                composer.addPass( bloomPass );
+
+
+
+                // Hack the render method.
+                let calledByComposer = false;
+
+                renderer.render = function() {
+
+                    if(calledByComposer) {
+
+                        render.apply(renderer, arguments);
+
+                    } else {
+
+                        calledByComposer = true;
+                        composer.render(clock.getDelta());
+                        calledByComposer = false;
+
+                    }
+
+                };
+
+            },
+
+            /**
+             * Clean up when the system gets removed.
+             */
+
+            remove() {
+
+                this.composer.renderer.render = this.originalRenderMethod;
+                this.composer.dispose();
+
+            }
+
+        });
+
+</script>
+
+</body>
+
+</html>
