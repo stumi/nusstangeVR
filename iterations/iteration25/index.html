@@ -18,12 +18,11 @@
     var userLookAt = [0,0,0];
     var userRotationDeg = [0,0,0];
 
-    var walls = [];
-    var maxWalls = 24;
+    var segments = [];
+    var maxSegments = 5;
     var scene = null; //Initalised in wall-manager
 
     var color = getRandomColor();
-    
 
     //https://stackoverflow.com/questions/1484506/random-color-generator
     function getRandomColor() {
@@ -36,7 +35,7 @@
     }
 
     function spawnSegment(x, y, z, rotX, rotY, rotZ){
-        let newEntity = document.createElement('a-entity');
+        let newSegment = document.createElement('a-entity');
         let walls = [];
 
         //Square
@@ -52,15 +51,16 @@
         walls.push(spawnWall(0, -10, 0, -45, 0, 0));*/
         
         for(w = 0; w < walls.length; w++){
-            newEntity.appendChild(walls[w]);
+            newSegment.appendChild(walls[w]);
         }
 
-        newEntity.setAttribute('position', x+" "+y+" "+z);
-        newEntity.setAttribute('rotation', rotX+" "+rotY+" "+rotZ+tunnelRotation);
+        newSegment.setAttribute('position', x+" "+y+" "+z);
+        newSegment.setAttribute('rotation', rotX+" "+rotY+" "+rotZ+tunnelRotation);
         tunnelRotation += 10;
         /*newEntity.object3D.position.set(x, y, z);
         newEntity.object3D.rotation.set(rotX, rotY, rotZ);*/
-        scene.appendChild(newEntity);
+        scene.appendChild(newSegment);
+        segments.push(newSegment);
     }
 
     function spawnWall(x, y, z, rotX, rotY, rotZ){
@@ -68,7 +68,6 @@
         let newWall = null;
         if(true /*walls.length <= maxWalls*/){
             newWall = document.createElement('a-plane');
-            newWall.setAttribute('wall', '');
             newWall.setAttribute('height', '20');
             newWall.setAttribute('width', '20');
             newWall.setAttribute('position', x+" "+y+" "+z);
@@ -80,41 +79,33 @@
         return newWall;
     }
 
-    function despawnWall(wall){
-        let index = walls.findIndex(otherWall => otherWall === wall);
-        walls.splice(index, 1);
-        wall.el.remove();
+    function despawnOldestSegment(){
+        let segment = segments[0];
+        segment.remove();
+        segments.splice(0, 1);
     }
 
-    AFRAME.registerComponent("wall", {
-        init: function(){
-            walls.push(this);
-        },
-        
-        refresh: function(){
-            //Remove Walls that are out of renderDistance
-            let thisPos = this.el.object3D.position;
-            let camPos = rig.object3D.position;
-
-            let thisV = [thisPos.x, thisPos.y, thisPos.z];
-            let camV = [camPos.x, camPos.y, camPos.z];
-
-            let distance = getMagnitude(subtractVectors(thisV, camV));
-
-            /*if( distance < 10){
-                despawnWall(this);
-            }*/
-        }
-    });
-
-    AFRAME.registerComponent("wall-manager", {
+    AFRAME.registerComponent("segment-manager", {
         init: function(){
             scene = document.getElementById("a-scene");
             scene.setAttribute('background', 'color: '+color);
             scene.setAttribute('fog', 'type: linear; color: '+color+'; near: 12; far: 12');
         },
-
+        
         tick: function(){
+
+            for(s = 10; s < segments.length; s++){
+                let camPos = rig.object3D.position;
+                let v = scalarTimesVector(0.2, getUnitVector(userLookAt));
+                let posX = camPos.x-v[0]*(renderDistance*s);
+                let posY = camPos.y-v[1]*(renderDistance*s);
+                let posZ = camPos.z-v[2]*(renderDistance*s);
+
+                let segment = segments[s];
+                //segment.setAttribute('position', posX+" "+posY+" "+posZ);
+                segment.setAttribute('rotation',  userRotationDeg[1]+" "+userRotationDeg[0]+" "+userRotationDeg[2]+tunnelRotation);
+            }
+
             if(Date.now() >= nextUpdateTime){
                 console.log("Refresh");
                 let camPos = rig.object3D.position;
@@ -126,12 +117,8 @@
 
                 spawnSegment(spawnX, spawnY, spawnZ, userRotationDeg[1], userRotationDeg[0], userRotationDeg[2]);
                 
-                for(w = 0; w < walls.length; w++){
-                    walls[w].el.components.wall.refresh();
-                }
-                
-                while(walls.length > maxWalls){
-                    despawnWall(walls[0]);
+                while(segments.length > maxSegments){
+                    despawnOldestSegment();
                 }
                 
                 scene.setAttribute('background', 'color: '+color);
@@ -168,7 +155,7 @@
 <a-scene id="a-scene">
     <!--a-sky color="#444444"></a-sky-->
 
-    <a-entity wall-manager></a-entity>
+    <a-entity segment-manager></a-entity>
 
     <a-entity id="rig" movement position="0 0 0">
         <a-entity id="camera" camera look-controls></a-entity>
