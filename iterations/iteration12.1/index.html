@@ -92,8 +92,6 @@
                         }
                     }
                 }
-
-                console.log('initial group berth complete')
             },
             tick: function (time) {
                 if(time > this.data.nextUpdateTime){
@@ -111,14 +109,15 @@
                 let self = this;
                 //https://stackoverflow.com/questions/20279484/how-to-access-the-correct-this-inside-a-callback
 
-
                 lifeChildren.forEach(function (lifeChild){
                     let lifeChildComponent = lifeChild.components["life-box"];
+
                     let lifeChildPosString = lifeChildComponent.data.posString;
                     if(!lifeChildrenFuture.has(lifeChildPosString)){
                         self.determineFutureLifeChild(lifeChildPosString, lifeChildComponent);
                         //check all the neighbours of this lifechild
                         lifeChildrenNeighbours.get(lifeChildPosString).forEach(function (neighbourPos){
+
                             if(!lifeChildrenFuture.has(neighbourPos) && lifeChildrenNeighbours.has(neighbourPos)) {
                                 self.determineFutureLifeChild(neighbourPos, lifeChildren.get(neighbourPos).components["life-box"]);
                             }
@@ -144,29 +143,27 @@
 
                 let livingNeighbours = this.getLivingNeighbours(lifeChildPosString);
                 //Alive at the moment?
-                let alive = (lifeChildComponent!==undefined);
+
 
                 //Determine Future of lifeChild
                 switch (ruleSet.get(livingNeighbours)) {
                     case 0: //dead
-                        if(alive) {
-                            lifeChildrenFuture.set(lifeChildPosString, {component: lifeChildComponent, lives: false});
-                        }
+                        lifeChildrenFuture.set(lifeChildComponent.data.posString, {component: lifeChildComponent, lives: false});
                         break;
                     case 1: //stay alive, if you were
-                        if(alive) {
-                            lifeChildrenFuture.set(lifeChildPosString, {component: lifeChildComponent, lives: true});
-                        }
+                        lifeChildrenFuture.set(lifeChildComponent.data.posString, {component: lifeChildComponent, lives: lifeChildComponent.el.object3D.visible});
                         break
                     case 2: //stay alive / be born
-                        lifeChildrenFuture.set(lifeChildPosString, {component: lifeChildComponent, lives: true});
+                        lifeChildrenFuture.set(lifeChildComponent.data.posString, {component: lifeChildComponent, lives: true});
                         break
                 }
             },
             setFutureStateOfLifeChildren: function () {
                 let self = this;
                 this.data.lifeChildrenFuture.forEach(function (lifeChild, key){
-                    if(lifeChild.component === undefined && lifeChild.lives){
+                    lifeChild.component.el.object3D.visible = lifeChild.lives;
+
+                    /*if(lifeChild.component === undefined && lifeChild.lives){
                         let x = key.match(/x(.*)y/).pop();
                         let y = key.match(/y(.*)z/).pop();
                         let z = key.match(/z(.*)/).pop();
@@ -175,27 +172,32 @@
 
                     //remove lifechilds that dont live anymore
                     if(!lifeChild.lives){
-                        self.killChild(key);
-                    }
+                        self.hideChild(lifeChild.component)
+                        //self.killChild(key);
+                    }*/
                 });
 
             },
             birthChild: function (x, y, z, alive) {
                 let posString = 'x' +x+'y'+y+'z'+z;
-                if(alive) {
-                    let entity = document.createElement('a-box');
-                    entity.object3D.scale.set(1, 1, 1);
-                    entity.object3D.position.set(x, y, z);
 
-                    entity.setAttribute('color', getRandomColor());
-                    entity.setAttribute('id', posString);
-                    entity.setAttribute('life-box', 'posString: '+posString+';');
+                let entity = document.createElement('a-box');
+                entity.object3D.scale.set(1, 1, 1);
+                entity.object3D.position.set(x, y, z);
 
-                    this.data.lifeChildren.set(posString, this.el.appendChild(entity));
-                }
+                entity.setAttribute('color', getRandomColor());
+                entity.setAttribute('id', posString);
+                entity.setAttribute('life-box', 'posString: '+posString+';');
+
+                this.data.lifeChildren.set(posString, this.el.appendChild(entity));
+                entity.object3D.visibile = alive;
+
                 if(!this.data.lifeChildrenNeighbours.has(posString)){
                     this.data.lifeChildrenNeighbours.set(posString, neighbourPositions({x: x, y: y, z:z}));
                 }
+            },
+            hideChild: function (lifeChildComponent) {
+                lifeChildComponent.object3D.visible = true;
             },
             killChild: function (posString){
                 let childToKill = this.data.lifeChildren.get(posString)

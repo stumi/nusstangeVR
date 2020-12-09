@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <script src="https://aframe.io/releases/1.0.4/aframe.min.js"></script>
+</head>
+<body>
+<script>
+    AFRAME.registerComponent("mover", {
+        tick: function(){
+            let rot = camera.object3D.rotation; //Rad
+
+            let alpha = rot.y;
+            let beta = rot.x;
+
+            //https://stackoverflow.com/questions/30011741/3d-vector-defined-by-2-angles
+            let z = Math.cos(alpha) * Math.cos(beta);
+            let x = Math.sin(alpha) * Math.cos(beta);
+            let y = -Math.sin(beta);
+
+            let v = scalarTimesVector(0, getUnitVector([x, y, z]));
+            let pos = camera.object3D.position;
+            camera.object3D.position.set(pos.x - v[0], pos.y - v[1], pos.z - v[2]);
+        }
+    });
+</script>
+<a-scene id="a-scene">
+    <a-sky color="lightgreen"></a-sky>
+
+    <a-entity id="rig" mover position="0 0 0">
+        <a-entity id="camera" camera look-controls></a-entity>
+    </a-entity>
+
+    <a-box position="1 0 3" rotation="0 0 0" color="#FF00FF"></a-box>
+    <a-box position="-1 0 3" rotation="0 0 0" color="#00FFFF"></a-box>
+    <a-box position="-1 0 -3" rotation="0 0 0" color="#00FFFF"></a-box>
+    <a-box position="1 0 -3" rotation="0 0 0" color="#FF00FF"></a-box>
+    <a-box position="3 0 0" rotation="0 0 0" color="#FF00FF"></a-box>
+    <a-box position="-3 0 0" rotation="0 0 0" color="#00FFFF"></a-box>
+    <a-plane color="#CCC" height="2" width="20" rotatoion="-90 0 0" ></a-plane>
+
+</a-scene>
+
+<script>
+    function getUnitVector(v){
+	    var mag = Math.sqrt(Math.pow(v[0],2) + Math.pow(v[1],2) + Math.pow(v[2],2));
+
+	    return [v[0]/mag, v[1]/mag, v[2]/mag];
+    }
+
+    
+    function scalarTimesVector(s, v){
+        return [s*v[0], s*v[1], s*v[2]];
+    }
+</script>
+
+</body>
+</html>
