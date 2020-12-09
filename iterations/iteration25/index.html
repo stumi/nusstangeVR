@@ -19,7 +19,7 @@
     var userRotationDeg = [0,0,0];
 
     var walls = [];
-    var maxWalls = 16;
+    var maxWalls = 24;
     var scene = null; //Initalised in wall-manager
 
     var color = getRandomColor();
@@ -94,7 +94,7 @@
         refresh: function(){
             //Remove Walls that are out of renderDistance
             let thisPos = this.el.object3D.position;
-            let camPos = camera.object3D.position;
+            let camPos = rig.object3D.position;
 
             let thisV = [thisPos.x, thisPos.y, thisPos.z];
             let camV = [camPos.x, camPos.y, camPos.z];
@@ -117,7 +117,7 @@
         tick: function(){
             if(Date.now() >= nextUpdateTime){
                 console.log("Refresh");
-                let camPos = camera.object3D.position;
+                let camPos = rig.object3D.position;
                 let v = scalarTimesVector(0.2, getUnitVector(userLookAt));
 
                 let spawnX = camPos.x-v[0]*renderDistance;
@@ -156,8 +156,8 @@
             userLookAt = [x, y, z];
 
             let v = scalarTimesVector(movementSpeed, getUnitVector(userLookAt));
-            let pos = camera.object3D.position;
-            camera.object3D.position.set(pos.x - v[0], pos.y - v[1], pos.z - v[2]);
+            let pos = this.el.object3D.position;
+            this.el.object3D.position.set(pos.x - v[0], pos.y - v[1], pos.z - v[2]);
         }
     });
 </script>
