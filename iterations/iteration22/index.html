@@ -1,0 +1,188 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Test</title>
+    <script src="https://aframe.io/releases/1.0.4/aframe.min.js"></script>
+    <script src="aframe-effects.min.js"></script>
+</head>
+<body>
+
+<script type="script-effect" id="customFilter" data-defaults="tDiffuse 0.3 0.3 1." data-diffuse>
+    void $main(inout vec4 c, vec4 o, vec2 uv, float d){
+        float t = time * mix(1., 1000., abs(sin(time * 10. + uv.x)));
+        uv = vec2(uv.x + resolution.z * sin(t * c.r + c.b), uv.y - resolution.w * cos(t * c.b + c.r));
+        c.rgb += smoothstep(0.3, 0.9, texture2D($0,uv).rgb  ) * mix( $1, $2, abs(sin(time * $3))) ;
+    }
+</script>
+
+<script type="script-effect" id="blendOutline" data-diffuse>
+    void $main(inout vec4 c, vec4 o, vec2 uv, float d){
+        c.rgb = mix(c.rgb, o.rgb, smoothstep(0.1,0.3,o.a));
+    }
+</script>
+
+<script type="script-effect" id="add" data-defaults="bloom_texture bloom_intensity" data-diffuse>
+    void $main(inout vec4 c, vec4 o, vec2 uv, float d){
+        c.rgb += pow(texture2D($0, uv).rgb,vec3(2.)) * $1;
+    }
+</script>
+
+<script>
+    var renderDistance = 50;
+    var movementSpeed = 0.1;
+
+    var refreshRate = 1000;
+    var nextUpdateTime = 0;
+
+    var userLookAt = [0,0,0];
+
+    var agents = [];
+    var maxAgents = 2000;
+    var scene = null; //Initalised in agent-spawner
+
+    function spawnAgent(x, y, z){
+        //console.log("Spawn Agent at "+x+", "+y+", "+z+"");
+        if(agents.length < maxAgents){
+            let newAgent = document.createElement('a-box');
+            newAgent.setAttribute('agent', '');
+            //newAgent.setAttribute('id', Math.random()*1000000);
+            newAgent.object3D.scale.set(30, 30, 30);
+            newAgent.object3D.position.set(x, y, z);
+            newAgent.setAttribute('color', "#00"+Math.round(Math.random()*89+10)+""+Math.round(Math.random()*89+10));
+            scene.appendChild(newAgent);
+        }
+    }
+
+    function despawnAgent(agent){
+        let index = agents.findIndex(otherAgent => otherAgent === agent);
+        agents.splice(index, 1);
+        agent.el.remove();
+    }
+
+    AFRAME.registerComponent("agent", {
+        init: function(){
+            agents.push(this);
+        },
+
+        refresh: function(){
+            let status = null;
+
+            //Remove Agents that are out of renderDistance
+            let thisPos = this.el.object3D.position;
+            let camPos = camera.object3D.position;
+
+            let thisV = [thisPos.x, thisPos.y, thisPos.z];
+            let camV = [camPos.x, camPos.y, camPos.z];
+
+            //Decide if the agent dies
+            let distance = getMagnitude(subtractVectors(thisV, camV));
+            if(distance > renderDistance || distance < 30){
+                despawnAgent(this);
+                status = "died"
+            }
+
+            for(let i = 0; i < 10; i++){
+                if(status != "died" && Math.random() > 0.3){ //Decide if a new Agent is spawned
+                    /*let pos = this.el.object3D.position;
+                    spawnAgent(pos.x+(Math.random()-0.5)*8,
+                                pos.y+(Math.random()-0.5)*8,
+                                pos.z+(Math.random()-0.5)*8);*/
+                }
+            }
+        }
+    });
+
+    AFRAME.registerComponent("agent-manager", {
+        init: function(){
+            scene = document.getElementById("a-scene");
+        },
+
+        tick: function(){
+            if(Date.now() >= nextUpdateTime){
+                //Decide if a new Agent is spawned
+                for(let i = 0; i < 500; i++){
+                    if(Math.random() > 0.3){
+                        let camPos = camera.object3D.position;
+                        let v = scalarTimesVector(9, getUnitVector(userLookAt));
+
+                        let randX = camPos.x+(Math.random()-0.5)*600-v[0]*renderDistance;
+                        let randY = camPos.y+(Math.random()-0.5)*500-v[1]*renderDistance;
+                        let randZ = camPos.z+(Math.random()-0.5)*600-v[2]*renderDistance;
+
+                        spawnAgent(randX, randY, randZ);
+                    }
+                }
+
+                for(a = 0; a < agents.length; a++){
+                    if(agents[a].el.components.agent.refresh() == "died"){
+                        a--;
+                    }
+                }
+
+                nextUpdateTime = Date.now() + refreshRate;
+            }
+        }
+    });
+
+    AFRAME.registerComponent("movement", {
+        tick: function(){
+            let rot = camera.object3D.rotation; //Rad
+
+            let alpha = rot.y;
+            let beta = rot.x;
+
+            //https://stackoverflow.com/questions/30011741/3d-vector-defined-by-2-angles
+            let z = Math.cos(alpha) * Math.cos(beta);
+            let x = Math.sin(alpha) * Math.cos(beta);
+            let y = -Math.sin(beta);
+
+            userLookAt = [x, y, z];
+
+            let v = scalarTimesVector(movementSpeed, getUnitVector(userLookAt));
+            let pos = camera.object3D.position;
+            camera.object3D.position.set(pos.x - v[0], pos.y - v[1], pos.z - v[2]);
+        }
+    });
+</script>
+
+<a-scene id="a-scene"
+         effects="bloom, fxaa" bloom="radius: 0.66" fxaa
+         >
+    <a-sky color="#444444"></a-sky>
+
+    <a-entity light="type: ambient; color: #BBB"></a-entity>
+    <a-entity id="sun" geometry="primitive: sphere; radius: 10;" material="shader: flat; transparent: true; color: #ffffff"
+              light="type: directional; color: #FFF; intensity: 0.6" position="40 -2 50"></a-entity>
+    <a-entity agent-manager></a-entity>
+
+    <a-entity id="rig" movement position="0 0 0">
+        <a-entity id="camera" camera look-controls></a-entity>
+    </a-entity>
+</a-scene>
+
+<script>
+    function getMagnitude(v){
+        return Math.sqrt(Math.pow(v[0],2) + Math.pow(v[1],2) + Math.pow(v[2],2));
+    }
+
+    function getUnitVector(v){
+        var mag = getMagnitude(v);
+
+        return [v[0]/mag, v[1]/mag, v[2]/mag];
+    }
+
+    function scalarTimesVector(s, v){
+        return [s*v[0], s*v[1], s*v[2]];
+    }
+
+    function addVectors(v1, v2){
+        return [v1[0]+v2[0], v1[1]+v2[1], v1[2]+v2[2]];
+    }
+
+    function subtractVectors(v1, v2){
+        return [v1[0]-v2[0], v1[1]-v2[1], v1[2]-v2[2]];
+    }
+</script>
+</body>
+</html>
