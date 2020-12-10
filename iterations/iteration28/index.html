@@ -1,0 +1,46 @@
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Test</title>
+    <script src="https://aframe.io/releases/1.0.4/aframe.min.js"></script>
+    <script src="../../lib/vectorHelperFunctions.js"></script>
+    <script src="../../lib/alwaysFollowYourNose.js"></script>
+    <script src="https://unpkg.com/aframe-mirror-component/dist/aframe-mirror-component.min.js"></script>
+
+</head>
+<body>
+<script>
+    movementSpeed = .1;
+    AFRAME.registerComponent('webSphereEntity',{
+        init: function () {
+            this.el.object3D.material.side = THREE.DoubleSide;
+        }
+    } )
+</script>
+<a-scene renderer="antialias: true;
+                   colorManagement: true;
+                   physicallyCorrectLights: false;">
+    <a-entity id="rig" movement position="0 0 0">
+        <a-entity id="camera" camera look-controls></a-entity>
+    </a-entity>
+    <a-assets>
+        <a-asset-item id="webSphere" src="../../assets/webSphere.gltf"></a-asset-item>
+    </a-assets>
+    <a-entity id="webSphereEntity" gltf-model="#webSphere" position="0 0 0" rotation="0 0 0" animation="property: rotation; to: 0 360 0; loop: true; dur: 30000; easing: linear"></a-entity>
+    <a-entity id="webSphereEntity" gltf-model="#webSphere" position="0 0 0" scale="3 3 3" rotation="0 -180 0" animation="property: rotation; to: 0 180 0; loop: true; dur: 35000; easing: linear"></a-entity>
+    <a-entity id="webSphereEntity" gltf-model="#webSphere" position="0 0 0" scale="5 5 5" rotation="0 -90 0" animation="property: rotation; to: 0 270 0; loop: true; dur: 40000; easing: linear"></a-entity>
+
+
+    <a-sphere light="type: point; intensity: 2; distance: 5000; decay: 0" position="0 1.25 -5000" radius="1.25" color="#EF2D5E"></a-sphere>
+    <a-sphere light="type: point; intensity: 2; distance: 5000; decay: 0" position="-5000 0 -5000" radius="1.25" color="#EF2D5E"></a-sphere>
+
+    <a-box position="-1 0.5 -3" rotation="0 45 0" color="#4CC3D9"></a-box>
+    <a-sphere position="0 1.25 -5" radius="1.25" color="#EF2D5E"></a-sphere>
+    <a-cylinder position="1 0.75 -3" radius="0.5" height="1.5" color="#FFC65D"></a-cylinder>
+    <a-sky color="grey" radius="9999"></a-sky>
+    <a-sphere mirror="resolution: 512" position="0 -1 -5" radius="1.25" ></a-sphere>
+
+</a-scene>
+</body>
+
+</html>
