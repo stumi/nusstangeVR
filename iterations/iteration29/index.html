@@ -7,15 +7,13 @@
     <script src="../../lib/vectorHelperFunctions.js"></script>
     <script src="../../lib/alwaysFollowYourNose.js"></script>
     <script src="https://cdn.rawgit.com/matthewbryancurtis/aframe-star-system-component/db4f1030/index.js"></script>
-
     <script src="https://unpkg.com/aframe-mirror-component/dist/aframe-mirror-component.min.js"></script>
-
 </head>
 <body>
 <script>
     movementSpeed = 1;
     let movementSpeeds = {
-        inside: 0.01,
+        inside: 1,
         warp: 50
     }
     AFRAME.registerComponent('web-sphere-entity',{
@@ -28,8 +26,12 @@
         },
         init: function () {
             this.data.centerVec = [this.el.object3D.position.x,this.el.object3D.position.y,this.el.object3D.position.z];
+            let h = getRndInteger(0, 360);
+            let s = getRndInteger(40, 100);
+            let l = getRndInteger(40, 80);
             for(let i = 0; i < this.data.outerCometsCount; i++) {
-                createComet(this.data.centerVec, getRndInteger(this.data.radius*1.1, this.data.radius*1.6))
+                let hsl = [h + getRndInteger(-4, 4), s + getRndInteger(-20, 20), l + getRndInteger(-20, 20)]
+                createComet(this.data.centerVec, getRndInteger(this.data.radius*1.1, this.data.radius*1.6), hsl)
             }
         },
         tick: function () {
@@ -70,7 +72,7 @@
         scene.appendChild(entity)
     }
 
-    function createComet(webSphereCenter, distance){
+    function createComet(webSphereCenter, distance, hsl_color){
         let v = scalarTimesVector(distance, getUnitVector([getRndInteger(-5, 5), getRndInteger(-5, 5), getRndInteger(-5, 5)]));
         /*
         let spawnX = v[0]+webSphereCenter[0];
@@ -82,8 +84,8 @@
         entity.setAttribute('comet', '');
         let radius = getRndInteger(10, 30);
         entity.setAttribute('geometry', 'primitive: sphere; radius: '+radius);
+        entity.setAttribute('material', 'color: hsl('+hsl_color[0] +','+hsl_color[1] +'%,'+hsl_color[2] +'%); opacity: .8; shader: flat;');
         //entity.object3D.scale(0.03, 0.03, 0.03);
-
         let holderEntity = document.createElement('a-entity');
         holderEntity.object3D.position.set(webSphereCenter[0], webSphereCenter[1], webSphereCenter[2]);
         let rotX = getRndInteger(0, 360);
@@ -112,11 +114,6 @@
 
     <a-sphere light="type: point; intensity: 2; distance: 5000; decay: 0" position="0 1.25 -5000" radius="1.25" color="#EF2D5E"></a-sphere>
     <a-sphere light="type: point; intensity: 2; distance: 5000; decay: 0" position="-5000 0 -5000" radius="1.25" color="#EF2D5E"></a-sphere>
-
-    <a-box position="-1 0.5 -3" rotation="0 45 0" color="#4CC3D9"></a-box>
-    <a-sphere position="0 1.25 -5" radius="1.25" color="#EF2D5E"></a-sphere>
-    <a-cylinder position="1 0.75 -3" radius="0.5" height="1.5" color="#FFC65D"></a-cylinder>
-    <a-sphere mirror="resolution: 512" position="0 -1 -5" radius="1.25" ></a-sphere>
 
     <a-entity id="starsystem" star-system="radius: 400; depth:5000; count: 50000"></a-entity>
 </a-scene>
