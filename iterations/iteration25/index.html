@@ -22,7 +22,9 @@
     var maxSegments = 5;
     var scene = null; //Initalised in wall-manager
 
-    var color = getRandomColor();
+    var colorNum = 0;
+    var colors = ["#fb8fff", "#8fe7ff"];
+    var color = colors[colorNum];
 
     //https://stackoverflow.com/questions/1484506/random-color-generator
     function getRandomColor() {
@@ -91,7 +93,7 @@
             scene.setAttribute('background', 'color: '+color);
             scene.setAttribute('fog', 'type: linear; color: '+color+'; near: 12; far: 12');
         },
-        
+
         tick: function(){
 
             for(s = 10; s < segments.length; s++){
@@ -123,7 +125,9 @@
                 
                 scene.setAttribute('background', 'color: '+color);
                 scene.setAttribute('fog', 'type: linear; color: '+color+'; near: 12; far: 12');
-                color = getRandomColor();
+                //color = getRandomColor();
+                color = colors[colorNum];
+                colorNum = colorNum == 1 ? 0 : 1;
                 nextUpdateTime = Date.now() + refreshRate;
             }
         }
