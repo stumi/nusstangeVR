@@ -22,9 +22,22 @@
     var maxSegments = 5;
     var scene = null; //Initalised in wall-manager
 
+    //https://www.color-hex.com/color-palettes/
+    //You make me sick
+    var palette1 = ["#ff8fd3", "#ffb1e4", "#b9d4ff", "#a799ff", "#7f7bff", "#a799ff", "#b9d4ff", "#ffb1e4"];
+    //Old Embers
+    var palette2 = ["#8d4445", "#392728", "#312628", "#595758", "#626569", "#595758", "#312628", "#392728"];
+    //Darkish Green
+    var palette3 = ["#4f725e", "#375c48", "#375445", "#23453b", "#183129", "#23453b", "#375445", "#375c48"];
+    //Kaleidoscope Eyes
+    var palette4 = ["#adb76b", "#d9b762", "#dba95d", "#e39251", "#ec794e", "#e39251", "#dba95d", "#d9b762"];
+    //Black Mesa
+    var palette5 = ["#4ee7ff", "#3e92f4", "#365dce", "#233865", "#122647", "#233865", "#365dce", "#3e92f4"];
+    var palettes = [palette1, palette2, palette3, palette4, palette5];
+
     var colorNum = 0;
-    var colors = ["#fb8fff", "#8fe7ff"];
-    var color = colors[colorNum];
+    var palette = Math.round(Math.random()*(palettes.length-1));
+    var color = palettes[palette][colorNum];
 
     //https://stackoverflow.com/questions/1484506/random-color-generator
     function getRandomColor() {
@@ -46,11 +59,15 @@
         walls.push(spawnWall(0, 10, 0, 45, 0, 0));
         walls.push(spawnWall(0, -10, 0, -45, 0, 0));
 
-        //Square
-        /*walls.push(spawnWall(-10, 0, 0, 0, 45, 0));
-        walls.push(spawnWall(10, 0, 0, 0, -45, 0));
-        walls.push(spawnWall(0, 10, 0, 45, 0, 0));
-        walls.push(spawnWall(0, -10, 0, -45, 0, 0));*/
+        //Tube
+        /*walls.push(spawnWall(-5, 0, 0, 0, 90, 0));
+        walls.push(spawnWall(5, 0, 0, 0, -90, 0));
+        walls.push(spawnWall(0, 5, 0, 90, 0, 0));
+        walls.push(spawnWall(0, -5, 0, -90, 0, 0));
+        walls.push(spawnWall(-5, 0, 0, 45, 90, 0));
+        walls.push(spawnWall(5, 0, 0, 135, -90, 0));
+        walls.push(spawnWall(0, 5, 0, 90, 0, 225));
+        walls.push(spawnWall(0, -5, 0, -90, 0, 315));*/
         
         for(w = 0; w < walls.length; w++){
             newSegment.appendChild(walls[w]);
@@ -90,8 +107,6 @@
     AFRAME.registerComponent("segment-manager", {
         init: function(){
             scene = document.getElementById("a-scene");
-            scene.setAttribute('background', 'color: '+color);
-            scene.setAttribute('fog', 'type: linear; color: '+color+'; near: 12; far: 12');
         },
 
         tick: function(){
@@ -125,9 +140,9 @@
                 
                 scene.setAttribute('background', 'color: '+color);
                 scene.setAttribute('fog', 'type: linear; color: '+color+'; near: 12; far: 12');
-                //color = getRandomColor();
-                color = colors[colorNum];
-                colorNum = colorNum == 1 ? 0 : 1;
+                colorNum = colorNum+1 == palettes[palette].length ? 0 : colorNum+1;
+                palette = Math.random() > 0.9 ? Math.round(Math.random()*(palettes.length-1)) : palette;
+                color = palettes[palette][colorNum];
                 nextUpdateTime = Date.now() + refreshRate;
             }
         }
