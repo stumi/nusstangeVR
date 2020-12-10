@@ -13,30 +13,63 @@
 <script>
     movementSpeed = 1;
     let movementSpeeds = {
-        inside: 1,
+        inside: .02,
         warp: 50
     }
-    let cometShapes =  {
-        sphere: '',
+    let cometShapes =  [
+        'primitive: sphere; radius: ',
+        'primitive: sphere; radius: ',
+        'primitive: sphere; radius: ',
+        'primitive: box; width: ',
+        'primitive: cone; radiusBottom: ',
+        'primitive: dodecahedron; radius: ',
+        'primitive: octahedron; radius: ',
+        'primitive: ring; radiusInner: 20; radiusOuter: ',
+        'primitive: tetrahedron; radius: ',
+        'primitive: torus; radius: ',
+    ];
 
-    }
+    cometShapes =  [
+        'primitive: ring; radiusInner: 20; radiusOuter: ',
+    ];
+
+    let songs = [
+        {path: '../../assets/songs/Ellie Goulding - High For This.mp3', movementSpeed: .01},
+        {path: '../../assets/songs/J-Cut & Kolt Siewerts - The Flute Tune.mp3', movementSpeed: .01},
+        {path: '../../assets/songs/Kygo - Firestone ft. Conrad Sewell.mp3', movementSpeed: .01},
+        {path: '../../assets/songs/Kygo & Ellie Goulding - First Time.mp3', movementSpeed: .01},
+        {path: '../../assets/songs/Kygo, Donna Summer - Hot Stuff.mp3', movementSpeed: .01},
+        {path: '../../assets/songs/Monsieur Minimal-Love Story.mp3', movementSpeed: .01},
+        {path: '../../assets/songs/Salvatore Ganacci - Boycycle.mp3', movementSpeed: .01},
+        {path: '../../assets/songs/Salvatore Ganacci - Horse.mp3', movementSpeed: .01},
+        {path: '../../assets/songs/Skylar Grey - Coming Home.mp3', movementSpeed: .01},         {path: '../../assets/songs/Skylar Grey - Coming Home.mp3', movementSpeed: .01},
+        {path: '../../assets/songs/W.Nuss Vo Bümpliz - Patent Ochsner.mp3', movementSpeed: .01},
+    ];
+
+
+    
     AFRAME.registerComponent('web-sphere-entity',{
         schema: {
             centerVec: { default: [] },
             active: { default: false },
-            outerCometsCount: { default: 200},
+            outerCometsShape: { default: ''},
+            outerCometsCount: { default: 300},
             outerComets: { default: {}},
-            radius: {default: 200}
+            radius: {default: 200},
+            songPath: {default: ''},
+            audio: {default: {}},
         },
         init: function () {
             this.data.centerVec = [this.el.object3D.position.x,this.el.object3D.position.y,this.el.object3D.position.z];
+            this.data.outerCometsShape = cometShapes[getRndInteger(0, cometShapes.length)];
             let h = getRndInteger(0, 360);
             let s = getRndInteger(40, 100);
             let l = getRndInteger(40, 80);
             for(let i = 0; i < this.data.outerCometsCount; i++) {
                 let hsl = [h + getRndInteger(-4, 4), s + getRndInteger(-20, 20), l + getRndInteger(-20, 20)]
-                createComet(this.data.centerVec, getRndInteger(this.data.radius*1.1, this.data.radius*1.6), hsl)
+                createComet(this.data.centerVec, getRndInteger(this.data.radius*1.1, this.data.radius*2), this.data.outerCometsShape, hsl);
             }
+            this.data.audio = new Audio(songs[getRndInteger(0, songs.length)].path);
         },
         tick: function () {
             let camPos = rig.object3D.position;
@@ -45,14 +78,16 @@
             if(this.data.active) {
                 if (distanceFromOrigin > this.data.radius) {
                     movementSpeed = movementSpeeds.warp;
+                    createWebSphere(10000);
                     this.data.active = false;
-                    createWebSphere(10000)
+                    this.data.audio.pause();
                 }
             } else {
                 if (distanceFromOrigin < this.data.radius) {
                     movementSpeed = movementSpeeds.inside;
                     starsystem.object3D.position.set(this.data.centerVec[0], this.data.centerVec[1], this.data.centerVec[2]);
                     this.data.active = true;
+                    this.data.audio.play();
                 }
             }
         }
@@ -76,7 +111,7 @@
         scene.appendChild(entity)
     }
 
-    function createComet(webSphereCenter, distance, hsl_color){
+    function createComet(webSphereCenter, distance, primitive_type, hsl_color){
         let v = scalarTimesVector(distance, getUnitVector([getRndInteger(-5, 5), getRndInteger(-5, 5), getRndInteger(-5, 5)]));
         /*
         let spawnX = v[0]+webSphereCenter[0];
@@ -87,14 +122,15 @@
         entity.object3D.position.set(v[0], v[1], v[2]);
         entity.setAttribute('comet', '');
         let radius = getRndInteger(10, 30);
-        entity.setAttribute('geometry', 'primitive: sphere; radius: '+radius);
+        entity.setAttribute('geometry', primitive_type +radius);
         entity.setAttribute('material', 'color: hsl('+hsl_color[0] +','+hsl_color[1] +'%,'+hsl_color[2] +'%); opacity: .8; shader: flat;');
 
         let holderEntity = document.createElement('a-entity');
         holderEntity.object3D.position.set(webSphereCenter[0], webSphereCenter[1], webSphereCenter[2]);
         let rotX = getRndInteger(0, 360);
         let rotY = 0;
-        let rotZ = getRndInteger(0, 360);
+        //let rotZ = getRndInteger(0, 360);
+        let rotZ = 0;
         let duration = getRndInteger(8000000, 9000000);
         holderEntity.setAttribute('roatation', rotX + ' ' + rotY + ' ' + rotZ)
         holderEntity.setAttribute('animation', 'property: rotation; to: '+rotX+360+' ' + rotY + 360 + ' ' +rotZ+360+'; loop: true; dur: ' + duration + '; easing: linear')
