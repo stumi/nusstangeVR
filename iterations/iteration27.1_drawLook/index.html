@@ -5,43 +5,37 @@
     <script src="https://aframe.io/releases/1.0.4/aframe.min.js"></script>
     <script src="../../lib/vectorHelperFunctions.js"></script>
     <script src="../../lib/alwaysFollowYourNose.js"></script>
-    <script src="https://cdn.rawgit.com/matthewbryancurtis/aframe-star-system-component/db4f1030/index.js"></script>
-
     <script src="https://unpkg.com/aframe-mirror-component/dist/aframe-mirror-component.min.js"></script>
 
 </head>
 <body>
 <script>
-    movementSpeed = 1;
+    movementSpeed = 5;
     AFRAME.registerComponent('web-sphere-entity',{
         schema: {
             centerVec: { default: [] },
-            active: { default: false },
+            active: { default: true },
         },
         init: function () {
             this.data.centerVec = [this.el.object3D.position.x,this.el.object3D.position.y,this.el.object3D.position.z];
         },
         tick: function () {
-            let camPos = rig.object3D.position;
-            let camV = [camPos.x, camPos.y, camPos.z];
-            let distanceFromOrigin = getMagnitude(subtractVectors(camV, this.data.centerVec ));
             if(this.data.active) {
+                let camPos = rig.object3D.position;
+                let camV = [camPos.x, camPos.y, camPos.z];
+                let distanceFromOrigin = getMagnitude(subtractVectors(camV, this.data.centerVec ));
                 if (distanceFromOrigin > 200) {
-                    movementSpeed = 50
                     console.log('I am outside'+this.el.object3D.position.z)
                     this.data.active = false;
-                    createWebSphere(10000)
-                }
-            } else {
-                if (distanceFromOrigin < 200) {
-                    movementSpeed = .1
-                    this.data.active = true;
+                    createWebSphere(5000)
                 }
             }
         }
     });
 
     function createWebSphere(spaceDistance){
+        console.log('hiii')
+        console.log(scene.a)
         let camPos = rig.object3D.position;
 
         let v = scalarTimesVector(0.2, getUnitVector(userLookAt));
@@ -71,7 +65,8 @@
     <a-assets>
         <a-asset-item id="webSphere" src="../../assets/webSphere.gltf"></a-asset-item>
     </a-assets>
-    <a-entity web-sphere-entity="active:true" gltf-model="#webSphere" position="0 0 0" rotation="0 0 0" animation="property: rotation; to: 0 360 0; loop: true; dur: 30000; easing: linear"></a-entity>
+    <a-entity web-sphere-entity gltf-model="#webSphere" position="0 0 0" rotation="0 0 0" animation="property: rotation; to: 0 360 0; loop: true; dur: 30000; easing: linear"></a-entity>
+    <a-entity web-sphere-entity gltf-model="#webSphere" position="0 0 -400" rotation="0 0 0" animation="property: rotation; to: 0 360 0; loop: true; dur: 30000; easing: linear"></a-entity>
 
     <a-sphere light="type: point; intensity: 2; distance: 5000; decay: 0" position="0 1.25 -5000" radius="1.25" color="#EF2D5E"></a-sphere>
     <a-sphere light="type: point; intensity: 2; distance: 5000; decay: 0" position="-5000 0 -5000" radius="1.25" color="#EF2D5E"></a-sphere>
@@ -79,10 +74,9 @@
     <a-box position="-1 0.5 -3" rotation="0 45 0" color="#4CC3D9"></a-box>
     <a-sphere position="0 1.25 -5" radius="1.25" color="#EF2D5E"></a-sphere>
     <a-cylinder position="1 0.75 -3" radius="0.5" height="1.5" color="#FFC65D"></a-cylinder>
-    <a-sky id="sky" color="grey" radius="9999"></a-sky>
+    <a-sky color="grey" radius="9999"></a-sky>
     <a-sphere mirror="resolution: 512" position="0 -1 -5" radius="1.25" ></a-sphere>
 
-    <a-entity star-system="radius: 400; depth:5000; count: 50000"></a-entity>
 </a-scene>
 </body>
 
