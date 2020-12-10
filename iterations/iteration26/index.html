@@ -9,7 +9,13 @@
 
 </head>
 <body>
-
+<script>
+    AFRAME.registerComponent('webSphereEntity',{
+        init: function () {
+            this.el.object3D.material.side = THREE.DoubleSide;
+        }
+    } )
+</script>
 <a-scene renderer="antialias: true;
                    colorManagement: true;
                    physicallyCorrectLights: false;">
@@ -19,7 +25,7 @@
     <a-assets>
         <a-asset-item id="webSphere" src="../../assets/webSphere.gltf"></a-asset-item>
     </a-assets>
-    <a-entity gltf-model="#webSphere" position="0 0 0" rotation="0 0 0" animation="property: rotation; to: 0 360 0; loop: true; dur: 10000; easing: linear"></a-entity>
+    <a-entity id="webSphereEntity" gltf-model="#webSphere" position="0 0 0" rotation="0 0 0" animation="property: rotation; to: 0 360 0; loop: true; dur: 10000; easing: linear"></a-entity>
     <a-entity rotation="0 0 0" animation="property: rotation; to: 0 360 0; loop: true; dur: 10000">
         <a-sphere light="color: white; intensity: 5" position="0 1.25 -5000" radius="1.25" color="#EF2D5E"></a-sphere>
     </a-entity>
@@ -31,7 +37,7 @@
     <a-cylinder position="1 0.75 -3" radius="0.5" height="1.5" color="#FFC65D"></a-cylinder>
     <a-plane position="0 0 -4" rotation="-90 0 0" width="4" height="4" color="#7BC8A4"></a-plane>
     <a-sky color="grey"></a-sky>
-    <a-sphere mirror position="0 -1 -5" radius="1.25" ></a-sphere>
+    <a-sphere mirror="resolution: 512" position="0 -1 -5" radius="1.25" ></a-sphere>
 
 </a-scene>
 </body>
