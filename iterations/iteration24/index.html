@@ -81,15 +81,74 @@
 
         });
 
+
+    var movementSpeed = 1;
+    let userRotationDeg;
+    let userLookAt;
+
+    AFRAME.registerComponent("movement", {
+        tick: function(){
+            let rot = camera.object3D.rotation; //Rad
+
+            let alpha = rot.y;
+            let beta = rot.x;
+
+            userRotationDeg = [alpha*180/Math.PI, beta*180/Math.PI, 0];
+
+            //https://stackoverflow.com/questions/30011741/3d-vector-defined-by-2-angles
+            let z = Math.cos(alpha) * Math.cos(beta);
+            let x = Math.sin(alpha) * Math.cos(beta);
+            let y = -Math.sin(beta);
+
+            userLookAt = [x, y, z];
+
+            let v = scalarTimesVector(movementSpeed, getUnitVector(userLookAt));
+            let pos = this.el.object3D.position;
+            this.el.object3D.position.set(pos.x - v[0], pos.y - v[1], pos.z - v[2]);
+        }
+    });
+
+
+
+    function getMagnitude(v){
+        return Math.sqrt(Math.pow(v[0],2) + Math.pow(v[1],2) + Math.pow(v[2],2));
+    }
+
+    function getUnitVector(v){
+        var mag = getMagnitude(v);
+
+        return [v[0]/mag, v[1]/mag, v[2]/mag];
+    }
+
+    function scalarTimesVector(s, v){
+        return [s*v[0], s*v[1], s*v[2]];
+    }
+
+    function addVectors(v1, v2){
+        return [v1[0]+v2[0], v1[1]+v2[1], v1[2]+v2[2]];
+    }
+
+    function subtractVectors(v1, v2){
+        return [v1[0]-v2[0], v1[1]-v2[1], v1[2]-v2[2]];
+    }
+
+
+
 </script>
 <a-scene>
+    <a-entity id="rig" movement position="0 0 0">
+        <a-entity id="camera" camera look-controls></a-entity>
+    </a-entity>
     <a-assets>
         <a-asset-item id="ramen" src="ramen.gltf"></a-asset-item>
     </a-assets>
     <a-entity gltf-model="#ramen" position="0 0 0" rotation="0 0 0" animation="property: rotation; to: 0 360 0; loop: true; dur: 10000; easing: linear"></a-entity>
     <a-entity rotation="0 0 0" animation="property: rotation; to: 0 360 0; loop: true; dur: 10000">
-        <a-sphere position="0 1.25 -5" radius="1.25" color="#EF2D5E"></a-sphere>
+        <a-sphere light="color: #AFA; intensity: 1.5" position="0 1.25 -5" radius="1.25" color="#EF2D5E"></a-sphere>
     </a-entity>
+    <a-entity light="color: #AFA; intensity: 1.5" position="-1 1 0"></a-entity>
+    <a-entity light="color: white; intensity: 1.5" position="2 1 0"></a-entity>
+
     <a-box position="-1 0.5 -3" rotation="0 45 0" color="#4CC3D9"></a-box>
     <a-sphere position="0 1.25 -5" radius="1.25" color="#EF2D5E"></a-sphere>
     <a-cylinder position="1 0.75 -3" radius="0.5" height="1.5" color="#FFC65D"></a-cylinder>
