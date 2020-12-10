@@ -3,6 +3,7 @@
     <meta charset="UTF-8">
     <title>Test</title>
     <script src="https://aframe.io/releases/1.0.4/aframe.min.js"></script>
+    <script src="../../lib/helperFunctions.js"></script>
     <script src="../../lib/vectorHelperFunctions.js"></script>
     <script src="../../lib/alwaysFollowYourNose.js"></script>
     <script src="https://cdn.rawgit.com/matthewbryancurtis/aframe-star-system-component/db4f1030/index.js"></script>
@@ -17,23 +18,29 @@
         schema: {
             centerVec: { default: [] },
             active: { default: false },
+            outerCometsCount: { default: 200},
+            outerComets: { default: {}},
+            radius: {default: 200}
         },
         init: function () {
             this.data.centerVec = [this.el.object3D.position.x,this.el.object3D.position.y,this.el.object3D.position.z];
+            for(let i = 0; i < this.data.outerCometsCount; i++) {
+                createComet(this.data.centerVec, getRndInteger(this.data.radius*1.1, this.data.radius*1.6))
+            }
         },
         tick: function () {
             let camPos = rig.object3D.position;
             let camV = [camPos.x, camPos.y, camPos.z];
             let distanceFromOrigin = getMagnitude(subtractVectors(camV, this.data.centerVec ));
             if(this.data.active) {
-                if (distanceFromOrigin > 200) {
+                if (distanceFromOrigin > this.data.radius) {
                     movementSpeed = 50
                     console.log('I am outside'+this.el.object3D.position.z)
                     this.data.active = false;
                     createWebSphere(10000)
                 }
             } else {
-                if (distanceFromOrigin < 200) {
+                if (distanceFromOrigin < this.data.radius) {
                     movementSpeed = .1
                     this.data.active = true;
                 }
@@ -51,18 +58,44 @@
 
         let entity = document.createElement('a-box');
 
-
         entity.object3D.position.set(spawnX, spawnY, spawnZ);
 
         entity.setAttribute('web-sphere-entity', '');
-        entity.setAttribute('gltf-model', '#webSphere')
+        entity.setAttribute('gltf-model', '#webSphere');
+        entity.setAttribute('animation', 'property: rotation; to: 0 360 0; loop: true; dur: 30000; easing: linear');
         scene.appendChild(entity)
+    }
 
+    function createComet(webSphereCenter, distance){
+        let v = scalarTimesVector(distance, getUnitVector([getRndInteger(-5, 5), getRndInteger(-5, 5), getRndInteger(-5, 5)]));
+        /*
+        let spawnX = v[0]+webSphereCenter[0];
+        let spawnY = v[1]+webSphereCenter[1];
+        let spawnZ = v[2]+webSphereCenter[2];
+        */
+        let entity = document.createElement('a-entity');
+        entity.object3D.position.set(v[0], v[1], v[2]);
+        entity.setAttribute('comet', '');
+        let radius = getRndInteger(10, 30);
+        entity.setAttribute('geometry', 'primitive: sphere; radius: '+radius);
+        //entity.object3D.scale(0.03, 0.03, 0.03);
+
+        let holderEntity = document.createElement('a-entity');
+        holderEntity.object3D.position.set(webSphereCenter[0], webSphereCenter[1], webSphereCenter[2]);
+        let rotX = getRndInteger(0, 360);
+        let rotY = 0;
+        let rotZ = getRndInteger(0, 360);
+        let duration = getRndInteger(8000000, 9000000);
+        holderEntity.setAttribute('roatation', rotX + ' ' + rotY + ' ' + rotZ)
+        holderEntity.setAttribute('animation', 'property: rotation; to: '+rotX+360+' ' + rotY + 360 + ' ' +rotZ+360+'; loop: true; dur: ' + duration + '; easing: linear')
+        holderEntity.appendChild(entity)
+
+        scene.appendChild(holderEntity)
     }
 
 
 </script>
-<a-scene id="scene" renderer="antialias: true;
+<a-scene background="color: #101010" id="scene" renderer="antialias: true;
                    colorManagement: true;
                    physicallyCorrectLights: false;">
     <a-entity id="rig" movement position="0 0 0">
@@ -79,7 +112,6 @@
     <a-box position="-1 0.5 -3" rotation="0 45 0" color="#4CC3D9"></a-box>
     <a-sphere position="0 1.25 -5" radius="1.25" color="#EF2D5E"></a-sphere>
     <a-cylinder position="1 0.75 -3" radius="0.5" height="1.5" color="#FFC65D"></a-cylinder>
-    <a-sky id="sky" color="grey" radius="9999"></a-sky>
     <a-sphere mirror="resolution: 512" position="0 -1 -5" radius="1.25" ></a-sphere>
 
     <a-entity star-system="radius: 400; depth:5000; count: 50000"></a-entity>
