@@ -1,7 +1,7 @@
 <html>
 <head>
     <meta charset="UTF-8">
-    <title>Test</title>
+    <title>NussstangeVR Sound</title>
     <script src="https://aframe.io/releases/1.0.4/aframe.min.js"></script>
     <script src="../../lib/helperFunctions.js"></script>
     <script src="../../lib/vectorHelperFunctions.js"></script>
@@ -14,10 +14,10 @@
     let webSpheres = [];
     let maxWebSpheres = 6;
 
-    movementSpeed = 1;
+    movementSpeed = .7;
 
     let movementSpeeds = {
-        inside: .03,
+        inside: .7,
         inside: 1,
         warp: 50
     }
@@ -52,6 +52,9 @@
     let sound_jumpInitiation = new Audio('../../assets/sounds/jumpInitiation_short.wav');
     let sound_jump = new Audio('../../assets/sounds/jump.wav');
     let sound_arrival = new Audio('../../assets/sounds/arrival_short.wav');
+    sound_jumpInitiation.volume = .45;
+    sound_jump.volume = .7;
+    sound_arrival.volume = .3;
 
     let colorGroups = [];
     for(let h = 0; h < 360; h += 10) {
@@ -77,6 +80,7 @@
         schema: {
             centerVec: { default: [] },
             active: { default: false },
+            leaving: { default: false },
             outerCometsShape: { default: ''},
             outerCometsCount: { default: 300},
             outerOuterCometsShape: { default: ''},
@@ -118,9 +122,10 @@
                     movementSpeed = movementSpeeds.warp;
                     createWebSphereInfront(getRndInteger(2000, 6000));
                     this.data.active = false;
+                    this.data.left = true;
                 }
             } else {
-                if(distanceFromOrigin < this.data.radius*1.1) {
+                if(distanceFromOrigin < this.data.radius*8 && !this.data.left) {
                     sound_arrival.currentTime = 0;
                     sound_arrival.play();
                 }
@@ -128,6 +133,7 @@
                     movementSpeed = movementSpeeds.inside;
                     starsystem.object3D.position.set(this.data.centerVec[0], this.data.centerVec[1], this.data.centerVec[2]);
                     this.data.active = true;
+                    this.data.left = false;
                     this.data.audio.play();
                 }
             }
@@ -146,6 +152,7 @@
         entity.object3D.position.set(x, y, z);
         entity.setAttribute('web-sphere-entity', 'active:'+active);
         entity.setAttribute('gltf-model', '#webSphere');
+        if(Math.random() > .9)entity.setAttribute('gltf-model', '#nussstange');
         entity.setAttribute('animation', 'property: rotation; to: 0 360 0; loop: true; dur: 30000; easing: linear');
         scene.appendChild(entity);
 
