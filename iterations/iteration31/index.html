@@ -152,7 +152,7 @@
         entity.object3D.position.set(x, y, z);
         entity.setAttribute('web-sphere-entity', 'active:'+active);
         entity.setAttribute('gltf-model', '#webSphere');
-        if(Math.random() > .9)entity.setAttribute('gltf-model', '#nussstange');
+        if(Math.random() > .89)entity.setAttribute('gltf-model', '#nussstange');
         entity.setAttribute('animation', 'property: rotation; to: 0 360 0; loop: true; dur: 30000; easing: linear');
         scene.appendChild(entity);
 
@@ -193,7 +193,7 @@
     <a-assets>
         <a-asset-item id="webSphere" src="../../assets/gltf/webSphere.gltf"></a-asset-item>
         <a-asset-item id="duck" src="https://raw.githubusercontent.com/KhronosGroup/glTF-Sample-Models/master/2.0/Duck/glTF/Duck.gltf"></a-asset-item>
-        <a-asset-item id="nusstange" src="../../assets/gltf/nussstange.gltf"></a-asset-item>
+        <a-asset-item id="nussstange" src="../../assets/gltf/nussstange.gltf"></a-asset-item>
     </a-assets>
     <a-entity gltf-model="#duck" position="0 0 0" scale="20, 20, 20"></a-entity>
 
