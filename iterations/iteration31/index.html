@@ -152,7 +152,10 @@
         entity.object3D.position.set(x, y, z);
         entity.setAttribute('web-sphere-entity', 'active:'+active);
         entity.setAttribute('gltf-model', '#webSphere');
-        if(Math.random() > .89)entity.setAttribute('gltf-model', '#nussstange');
+        if(Math.random() > .89) { //make a nussstange
+            entity.setAttribute('gltf-model', '#nussstange');
+            entity.setAttribute('web-sphere-entity', 'radius: 600; active:'+active);
+        }
         entity.setAttribute('animation', 'property: rotation; to: 0 360 0; loop: true; dur: 30000; easing: linear');
         scene.appendChild(entity);
 
