@@ -12,11 +12,13 @@
 <body>
 <script>
     movementSpeed = 1;
+
     let movementSpeeds = {
         inside: .03,
         inside: 1,
         warp: 50
     }
+
     let cometShapes =  [
         'primitive: sphere; radius: ',
         'primitive: sphere; radius: ',
@@ -43,8 +45,29 @@
         {path: '../../assets/songs/W.Nuss Vo Bümpliz - Patent Ochsner.mp3', movementSpeed: .01},
     ];
 
+    let webSpheres = [];
+    let maxWebSpheres = 6;
 
-    
+    let colorGroups = [];
+    for(let h = 0; h < 360; h += 10) {
+        let colors = [];
+        let s = getRndInteger(40, 100);
+        let l = getRndInteger(40, 80);
+        for(let i = 0; i < 7; i++){
+            let color_h = h + getRndInteger(-10, 10);
+            if(color_h < 0) color_h = 0;
+            if(color_h > 360) color_h = 360;
+            let color_s = s + getRndInteger(-20, 40);
+            if(color_s < 0) color_s = 0;
+            if(color_s > 100) color_s = 100;
+            let color_l = l + getRndInteger(-10, 10);
+            if(color_l < 0) color_l = 0;
+            if(color_l > 100) color_l = 100;
+            colors.push([color_h, color_s, color_l]);
+        }
+        colorGroups.push(colors);
+    }
+
     AFRAME.registerComponent('web-sphere-entity',{
         schema: {
             centerVec: { default: [] },
@@ -59,33 +82,33 @@
         },
         init: function () {
             this.data.centerVec = [this.el.object3D.position.x,this.el.object3D.position.y,this.el.object3D.position.z];
-            this.data.outerCometsShape = cometShapes[getRndInteger(0, cometShapes.length)];
-            this.data.outerOuterCometsShape = cometShapes[getRndInteger(0, cometShapes.length)];
-            let h = getRndInteger(0, 360);
-            let s = getRndInteger(40, 100);
-            let l = getRndInteger(40, 80);
+            this.data.outerCometsShape = cometShapes[getRndInteger(0, cometShapes.length-1)];
+            this.data.outerOuterCometsShape = cometShapes[getRndInteger(0, cometShapes.length-1)];
+            let colorIndex = getRndInteger(0, colorGroups.length-1);
+            let colorGroup = colorGroups[colorIndex];
             for(let i = 0; i < this.data.outerCometsCount; i++) {
-                let hsl = [h + getRndInteger(-4, 4), s + getRndInteger(-20, 20), l + getRndInteger(-20, 20)]
-                createComet(this.data.centerVec, getRndInteger(this.data.radius*1.1, this.data.radius*2), this.data.outerCometsShape, hsl);
+                createComet(this.el, this.data.centerVec, getRndInteger(this.data.radius*1.1, this.data.radius*2), this.data.outerCometsShape, colorGroup[getRndInteger(0, colorGroup.length-1)]);
             }
-            h = h + getRndInteger(-30, 30);
-            s = s + getRndInteger(-20, 40);
-            l = l + getRndInteger(-10, 10);
+            let outerCometsColorIndex = colorIndex + getRndInteger(-3, 3);
+            if(outerCometsColorIndex < 0)outerCometsColorIndex = 0;
+            if(outerCometsColorIndex > colorGroups.length - 1)outerCometsColorIndex = colorGroups.length - 1;
+            colorGroup = colorGroups[outerCometsColorIndex];
             for(let i = 0; i < this.data.outerCometsCount; i++) {
-                let hsl = [h + getRndInteger(-2, 2), s + getRndInteger(-10, 10), l + getRndInteger(-10, 10)]
-                createComet(this.data.centerVec, getRndInteger(this.data.radius*3, this.data.radius*5), this.data.outerOuterCometsShape, hsl);
+                createComet(this.el, this.data.centerVec, getRndInteger(this.data.radius*3, this.data.radius*5), this.data.outerOuterCometsShape, colorGroup[getRndInteger(0, colorGroup.length-1)]);
             }
-            this.data.audio = new Audio(songs[getRndInteger(0, songs.length)].path);
+            this.data.audio = new Audio(songs[getRndInteger(0, songs.length-1)].path);
             this.data.audio.loop = true;
         },
         tick: function () {
             let camPos = rig.object3D.position;
             let camV = [camPos.x, camPos.y, camPos.z];
             let distanceFromOrigin = getMagnitude(subtractVectors(camV, this.data.centerVec ));
+
             if(this.data.active) {
+                //this.data.audio.volume = (distanceFromOrigin/this.data.radius/2 > 1) ? 1 / distanceFromOrigin/this.data.radius/2 : 1;
                 if (distanceFromOrigin > this.data.radius) {
                     movementSpeed = movementSpeeds.warp;
-                    createWebSphere(getRndInteger(8000, 20000));
+                    createWebSphereInfront(getRndInteger(2000, 6000));
                     this.data.active = false;
                     this.data.audio.pause();
                 }
@@ -100,25 +123,34 @@
         }
     });
 
-    function createWebSphere(spaceDistance){
+    function createWebSphereInfront(spaceDistance){
         let camPos = rig.object3D.position;
 
-        let v = scalarTimesVector(0.2, getUnitVector(userLookAt));
+        let v = getUnitVector(userLookAt);
         let spawnX = camPos.x - v[0]*spaceDistance;
         let spawnY = camPos.y - v[1]*spaceDistance;
         let spawnZ = camPos.z - v[2]*spaceDistance;
 
-        let entity = document.createElement('a-box');
+        createWebSphere(spawnX, spawnY, spawnZ);
 
-        entity.object3D.position.set(spawnX, spawnY, spawnZ);
+    }
+    function createWebSphere(x, y, z, active = false) {
+        let entity = document.createElement('a-entity');
 
-        entity.setAttribute('web-sphere-entity', '');
+        entity.object3D.position.set(x, y, z);
+
+        entity.setAttribute('web-sphere-entity', 'active:'+active);
         entity.setAttribute('gltf-model', '#webSphere');
         entity.setAttribute('animation', 'property: rotation; to: 0 360 0; loop: true; dur: 30000; easing: linear');
-        scene.appendChild(entity)
+        scene.appendChild(entity);
+
+        webSpheres.push(entity);
+        if(webSpheres.length > maxWebSpheres) {
+            webSpheres.shift().remove();
+        }
     }
 
-    function createComet(webSphereCenter, distance, primitive_type, hsl_color){
+    function createComet(webSphereEntity, webSphereCenter, distance, primitive_type, hsl_color){
         let v = scalarTimesVector(distance, getUnitVector([getRndInteger(-5, 5), getRndInteger(-5, 5), getRndInteger(-5, 5)]));
         /*
         let spawnX = v[0]+webSphereCenter[0];
@@ -133,7 +165,7 @@
         entity.setAttribute('material', 'color: hsl('+hsl_color[0] +','+hsl_color[1] +'%,'+hsl_color[2] +'%); opacity: .8; shader: flat;');
 
         let holderEntity = document.createElement('a-entity');
-        holderEntity.object3D.position.set(webSphereCenter[0], webSphereCenter[1], webSphereCenter[2]);
+        holderEntity.object3D.position.set(0, 0, 0);
         let rotX = getRndInteger(0, 360);
         let rotY = 0;
         //let rotZ = getRndInteger(0, 360);
@@ -143,10 +175,8 @@
         holderEntity.setAttribute('animation', 'property: rotation; to: '+rotX+360+' ' + rotY + 360*(Math.random()>= 0.5 ? 1 : -1) + ' ' +rotZ+360+'; loop: true; dur: ' + duration + '; easing: linear')
         holderEntity.appendChild(entity)
 
-        scene.appendChild(holderEntity)
+        webSphereEntity.appendChild(holderEntity)
     }
-
-
 </script>
 <a-scene background="color: #101010" id="scene" renderer="antialias: true;
                    colorManagement: true;
@@ -157,13 +187,20 @@
     <a-assets>
         <a-asset-item id="webSphere" src="../../assets/webSphere.gltf"></a-asset-item>
     </a-assets>
-    <a-entity web-sphere-entity="active:true" gltf-model="#webSphere" position="0 0 0" rotation="0 0 0" animation="property: rotation; to: 0 360 0; loop: true; dur: 30000; easing: linear"></a-entity>
 
     <a-sphere light="type: point; intensity: 2; distance: 5000; decay: 0" position="0 1.25 -5000" radius="1.25" color="#EF2D5E"></a-sphere>
     <a-sphere light="type: point; intensity: 2; distance: 5000; decay: 0" position="-5000 0 -5000" radius="1.25" color="#EF2D5E"></a-sphere>
 
     <a-entity id="starsystem" star-system="radius: 400; depth:5000; count: 50000"></a-entity>
 </a-scene>
+
+<script>
+    //initalize some start Spheres
+    createWebSphere(0,0,0, true);
+    createWebSphere(getRndInteger(-3000, 3000),getRndInteger(-3000, 3000),getRndInteger(-3000, 3000));
+    createWebSphere(getRndInteger(-3000, 3000),getRndInteger(-3000, 3000),getRndInteger(-3000, 3000));
+    createWebSphere(getRndInteger(-3000, 3000),getRndInteger(-3000, 3000),getRndInteger(-3000, 3000));
+</script>
 </body>
 
 </html>
