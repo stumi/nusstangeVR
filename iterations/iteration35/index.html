@@ -12,7 +12,7 @@
     var renderDistance = 30;
     var movementSpeed = 0.05;
 
-    var refreshRate = 1000;
+    var refreshRate = 3800;
     var nextUpdateTime = 0;
 
     var userLookAt = [0,0,0];
@@ -51,13 +51,13 @@
 
     function spawnSegment(x, y, z, rotX, rotY, rotZ){
         let newSegment = document.createElement('a-entity');
-        let walls = [];
+        //let walls = [];
 
         //Square
-        walls.push(spawnWall(-10, 0, 0, 0, 45, 0));
+        /*walls.push(spawnWall(-10, 0, 0, 0, 45, 0));
         walls.push(spawnWall(10, 0, 0, 0, -45, 0));
         walls.push(spawnWall(0, 10, 0, 45, 0, 0));
-        walls.push(spawnWall(0, -10, 0, -45, 0, 0));
+        walls.push(spawnWall(0, -10, 0, -45, 0, 0));*/
 
         //Tube
         /*walls.push(spawnWall(-5, 0, 0, 0, 90, 0));
@@ -69,12 +69,15 @@
         walls.push(spawnWall(0, 5, 0, 90, 0, 225));
         walls.push(spawnWall(0, -5, 0, -90, 0, 315));*/
         
-        for(w = 0; w < walls.length; w++){
+        /*for(w = 0; w < walls.length; w++){
             newSegment.appendChild(walls[w]);
-        }
+        }*/
 
+        newSegment.setAttribute('gltf-model', '#tube');
+        newSegment.setAttribute('animation', 'property: rotation; to: -90 360 0; loop: true; dur: 10000; easing: linear');
+        newSegment.setAttribute('scale', '0.01 0.01 0.01');
         newSegment.setAttribute('position', x+" "+y+" "+z);
-        newSegment.setAttribute('rotation', rotX+" "+rotY+" "+rotZ+tunnelRotation);
+        newSegment.setAttribute('rotation', (rotX-90)+" "+rotY+" "+rotZ);
         tunnelRotation += 10;
         /*newEntity.object3D.position.set(x, y, z);
         newEntity.object3D.rotation.set(rotX, rotY, rotZ);*/
@@ -126,7 +129,7 @@
             if(Date.now() >= nextUpdateTime){
                 console.log("Refresh");
                 let camPos = rig.object3D.position;
-                let v = scalarTimesVector(0.2, getUnitVector(userLookAt));
+                let v = scalarTimesVector(0.8, getUnitVector(userLookAt));
 
                 let spawnX = camPos.x-v[0]*renderDistance;
                 let spawnY = camPos.y-v[1]*renderDistance;
@@ -139,10 +142,10 @@
                 }
                 
                 scene.setAttribute('background', 'color: '+color);
-                scene.setAttribute('fog', 'type: linear; color: '+color+'; near: 12; far: 12');
-                colorNum = colorNum+1 == palettes[palette].length ? 0 : colorNum+1;
+                scene.setAttribute('fog', 'type: linear; color: '+color+'; near: 11; far: 12');
+                /*colorNum = colorNum+1 == palettes[palette].length ? 0 : colorNum+1;
                 palette = Math.random() > 0.9 ? Math.round(Math.random()*(palettes.length-1)) : palette;
-                color = palettes[palette][colorNum];
+                color = palettes[palette][colorNum];*/
                 nextUpdateTime = Date.now() + refreshRate;
             }
         }
@@ -155,24 +158,28 @@
             let alpha = rot.y;
             let beta = rot.x;
 
-            userRotationDeg = [alpha*180/Math.PI, beta*180/Math.PI, 0];
+            userRotationDeg = [0, 0, 0];
 
             //https://stackoverflow.com/questions/30011741/3d-vector-defined-by-2-angles
             let z = Math.cos(alpha) * Math.cos(beta);
             let x = Math.sin(alpha) * Math.cos(beta);
             let y = -Math.sin(beta);
 
-            userLookAt = [x, y, z];
+            userLookAt = [0, 0, 1];
 
             let v = scalarTimesVector(movementSpeed, getUnitVector(userLookAt));
             let pos = this.el.object3D.position;
-            this.el.object3D.position.set(pos.x - v[0], pos.y - v[1], pos.z - v[2]);
+            //this.el.object3D.position.set(pos.x - v[0], pos.y - v[1], pos.z - v[2]);
+            this.el.object3D.position.set(pos.x, pos.y, pos.z - 0.05);
         }
     });
 </script>
 
 <a-scene id="a-scene">
     <a-entity segment-manager></a-entity>
+    <a-assets>
+        <a-asset-item id="tube" src="../../assets/NudelRoehre.gltf"></a-asset-item>
+    </a-assets>
 
     <a-entity id="rig" movement position="0 0 0">
         <a-entity id="camera" camera look-controls></a-entity>
