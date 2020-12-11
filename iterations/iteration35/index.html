@@ -18,9 +18,9 @@
     var userLookAt = [0,0,0];
     var userRotationDeg = [0,0,0];
 
-    var segments = [];
-    var maxSegments = 5;
-    var scene = null; //Initalised in wall-manager
+    var elements = [];
+    var maxElements = 12;
+    var scene = null; //Initalised in element-manager
 
     //https://www.color-hex.com/color-palettes/
     //You make me sick
@@ -54,30 +54,15 @@
         //let walls = [];
 
         //Square
-        /*walls.push(spawnWall(-10, 0, 0, 0, 45, 0));
-        walls.push(spawnWall(10, 0, 0, 0, -45, 0));
-        walls.push(spawnWall(0, 10, 0, 45, 0, 0));
-        walls.push(spawnWall(0, -10, 0, -45, 0, 0));*/
-
-        //Tube
-        /*walls.push(spawnWall(-5, 0, 0, 0, 90, 0));
-        walls.push(spawnWall(5, 0, 0, 0, -90, 0));
-        walls.push(spawnWall(0, 5, 0, 90, 0, 0));
-        walls.push(spawnWall(0, -5, 0, -90, 0, 0));
-        walls.push(spawnWall(-5, 0, 0, 45, 90, 0));
-        walls.push(spawnWall(5, 0, 0, 135, -90, 0));
-        walls.push(spawnWall(0, 5, 0, 90, 0, 225));
-        walls.push(spawnWall(0, -5, 0, -90, 0, 315));*/
+        //walls.push(spawnWall(-10, 0, 0, 0, 45, 0));
         
-        /*for(w = 0; w < walls.length; w++){
-            newSegment.appendChild(walls[w]);
-        }*/
+        for(e = 0; e < elements.length; e++){
+            //walls[e];
+        }
 
-        newSegment.setAttribute('gltf-model', '#tube');
-        newSegment.setAttribute('animation', 'property: rotation; to: -90 360 0; loop: true; dur: 10000; easing: linear');
         newSegment.setAttribute('scale', '0.01 0.01 0.01');
         newSegment.setAttribute('position', x+" "+y+" "+z);
-        newSegment.setAttribute('rotation', (rotX-90)+" "+rotY+" "+rotZ);
+        newSegment.setAttribute('rotation', 0+" "+0+" "+0);
         tunnelRotation += 10;
         /*newEntity.object3D.position.set(x, y, z);
         newEntity.object3D.rotation.set(rotX, rotY, rotZ);*/
@@ -85,7 +70,7 @@
         segments.push(newSegment);
     }
 
-    function spawnWall(x, y, z, rotX, rotY, rotZ){
+    function spawnAgent(x, y, z, rotX, rotY, rotZ){
         //console.log("Spawn Wall at "+x+", "+y+", "+z+"");
         let newWall = null;
         if(true /*walls.length <= maxWalls*/){
@@ -158,19 +143,19 @@
             let alpha = rot.y;
             let beta = rot.x;
 
-            userRotationDeg = [0, 0, 0];
+            userRotationDeg = [alpha*180/Math.PI, beta*180/Math.PI, 0];
 
             //https://stackoverflow.com/questions/30011741/3d-vector-defined-by-2-angles
             let z = Math.cos(alpha) * Math.cos(beta);
             let x = Math.sin(alpha) * Math.cos(beta);
             let y = -Math.sin(beta);
 
-            userLookAt = [0, 0, 1];
+            userLookAt = [x, y, z];
 
             let v = scalarTimesVector(movementSpeed, getUnitVector(userLookAt));
             let pos = this.el.object3D.position;
-            //this.el.object3D.position.set(pos.x - v[0], pos.y - v[1], pos.z - v[2]);
-            this.el.object3D.position.set(pos.x, pos.y, pos.z - 0.05);
+            this.el.object3D.position.set(pos.x - v[0], pos.y - v[1], pos.z - v[2]);
+            //this.el.object3D.position.set(pos.x, pos.y, pos.z - 0.05);
         }
     });
 </script>
