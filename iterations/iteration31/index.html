@@ -81,6 +81,7 @@
             centerVec: { default: [] },
             active: { default: false },
             leaving: { default: false },
+            entered: { default: false },
             outerCometsShape: { default: ''},
             outerCometsCount: { default: 300},
             outerOuterCometsShape: { default: ''},
@@ -125,9 +126,10 @@
                     this.data.left = true;
                 }
             } else {
-                if(distanceFromOrigin < this.data.radius*8 && !this.data.left) {
+                if(distanceFromOrigin < this.data.radius*8 && !this.data.entered) {
                     sound_arrival.currentTime = 0;
                     sound_arrival.play();
+                    this.data.entered = true;
                 }
                 if (distanceFromOrigin < this.data.radius) {
                     movementSpeed = movementSpeeds.inside;
