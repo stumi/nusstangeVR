@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="">
+    <meta name="author" content="Lorro und Stumi">
+
+    <title>NussstangeVR Documentation</title>
+
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.2.0/styles/atom-one-dark-reasonable.min.css" integrity="sha512-DYEvxq+ESMe6pfhEV4PDJcYLuz3XZ3cp/RTUuAxblTKiIQ7O5Hf7cikoFPdfqrASCPLk5fYAhq8PwPoA7LBluw==" crossorigin="anonymous" />
+    <link rel="stylesheet" href="../css/main.css">
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.2.0/highlight.min.js" integrity="sha512-TDKKr+IvoqZnPzc3l35hdjpHD0m+b2EC2SrLEgKDRWpxf2rFCxemkgvJ5kfU48ip+Y+m2XVKyOCD85ybtlZDmw==" crossorigin="anonymous"></script>
+</head>
+<body>
+<header class="titleBlock">
+    <h1>NussstangeVR</h1>
+    <p>documentation of all iterations made by Lorro or Stumi</p>
+</header>
+<section class="documentation">
+    <article>
+        <h2>Introduction</h2>
+        <a href="/iterations/iteration1" target="_blank" class="preview">
+            <h3>Testing out AFRAME and its components</h3>
+            <img src="/assets/images/iteration1.png">
+        </a>
+        <p>
+Content
+
+        </p>
+        <pre><code class="javascript">
+function maxBillCircles(count, x, y, radius, radiusDifference, stroke_Weight, strokeDifference, colors){
+  let smallestRadius = radius/4;
+  for(let i = 0; i < count; i++){
+    let diffForStrokeWeight = Math.random() * strokeDifference * stroke_Weight;
+    strokeWeight(diffForStrokeWeight)
+
+    let colorIndex = Math.floor(Math.random() * colors.length);
+    stroke(colors[colorIndex]);
+
+    let diffForRadius = Math.random() * radiusDifference;
+
+    let circleX = x + Math.random() * smallestRadius * (random(0,1)>= 0.5 ? 1 : -1);
+    let circleY = y + Math.random() * smallestRadius * (random(0,1)>= 0.5 ? 1 : -1);
+    circle(circleX,circleY,radius*diffForRadius);
+  }
+}
+</code>
+        </pre>
+        <p>
+            The maxBillCircles function gets called in the setup function and draws the circles initially when the page is loaded.
+        </p>
+<pre>
+<code class="javascript">
+function setup() {
+  ...
+
+  blendMode(DIFFERENCE);
+
+  background('#222222');
+  noFill();
+  strokeWeight(25);
+  maxBillCircles(7, windowWidth/2, windowHeight/2, windowWidth/4, 1.3, 30, 1.2, ['red', 'limegreen', 'midnightblue', 'white']);
+}
+</code>
+</pre>
+
+    </article>
+    <article>
+        <h2>Idea</h2>
+        <a href="/iterations/iteration1" target="_blank" class="preview">
+            <h3>AFRAME and its components</h3>
+            <img src="/assets/images/iteration1.png">
+        </a>
+        <p>
+            Content
+        </p>
+    </article>
+
+    <article>
+        <h2>Moodboard</h2>
+        <a href="/iterations/iteration1" target="_blank" class="preview">
+            <h3>AFRAME and its components</h3>
+            <img src="/assets/images/iteration1.png">
+        </a>
+        <p>
+            Content
+        </p>
+    </article>
+
+
+</section>
+<section class="documentation">
+
+    <article>
+        <h2>Framework decision (Why a-frame?)</h2>
+        <a href="/iterations/iteration1" target="_blank" class="preview">
+            <h3>Testing out AFRAME and its components</h3>
+            <img src="/assets/images/iteration1.png">
+        </a>
+        <p>
+Content
+        </p>
+    </article>
+
+    <article>
+        <h2>First Tests</h2>
+        <a href="/iterations/iteration1" target="_blank" class="preview">
+            <h3>AFRAME and its components</h3>
+            <img src="/assets/images/iteration1.png">
+        </a>
+        <p>
+Content
+        </p>
+        <h3>Animation Component</h3>
+        <h3>AFRAME and Loading .gltf 3D Models</h3>
+        <p>Duck</p>
+        <p>Duck-Circle</p>
+        <p>Duck-Sphere</p>
+        <h3>Star-System</h3>
+        <h3>More Components</h3>
+    </article>
+
+</section>
+<section class="documentation">
+    <article>
+        <h2>Camera Movement</h2>
+        <a href="/iterations/iteration1" target="_blank" class="preview">
+            <h3>Move where you look</h3>
+            <img src="/assets/images/iteration1.png">
+        </a>
+        <p>
+            Content
+        </p>
+    </article>
+
+    <article>
+        <h2>Game Of Life</h2>
+        <a href="/iterations/iteration1" target="_blank" class="preview">
+            <h3>2D Game of Life</h3>
+            <img src="/assets/images/iteration1.png">
+        </a>
+        <p>
+            Content
+        </p>
+        <h3>3D Game Of Life</h3>
+        <h3>Code Snippets (don't take out of context)</h3>
+        <h3>Ruckeling</h3>
+    </article>
+
+    <article>
+        <h2>Tunnel vision</h2>
+        <a href="/iterations/iteration1" target="_blank" class="preview">
+            <h3>Going in Tunnels</h3>
+            <img src="/assets/images/iteration1.png">
+        </a>
+        <p>
+Content
+        </p>
+    </article>
+
+    <article>
+        <h2>Failed Shaders</h2>
+        <a href="/iterations/iteration1" target="_blank" class="preview">
+            <h3>Why you no VR</h3>
+            <img src="/assets/images/iteration1.png">
+        </a>
+        <p>
+Content
+        </p>
+    </article>
+
+</section>
+<section class="documentation">
+    <article>
+        <h2>Spheres</h2>
+        <a href="/iterations/iteration1" target="_blank" class="preview">
+            <h3>Testing out AFRAME and its components</h3>
+            <img src="/assets/images/iteration1.png">
+        </a>
+        <p>
+Content
+        </p>
+    </article>
+
+</section>
+
+<section class="titleBlock">
+    <h1>Dream on while new VR Worlds are coming</h1>
+    <p>and thats a wrap. We hope you like our experience in the VR Worlds</p>
+</section>
+
+<script>
+    hljs.initHighlightingOnLoad();
+</script>
+</body>
+
+</html>
