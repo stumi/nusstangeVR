@@ -1,0 +1,269 @@
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>NussstangeVR Sound</title>
+    <script src="https://aframe.io/releases/1.0.4/aframe.min.js"></script>
+    <script src="../../lib/helperFunctions.js"></script>
+    <script src="../../lib/vectorHelperFunctions.js"></script>
+    <script src="../../lib/alwaysFollowYourNose.js"></script>
+    <script src="https://cdn.rawgit.com/matthewbryancurtis/aframe-star-system-component/db4f1030/index.js"></script>
+    <script src="https://unpkg.com/aframe-mirror-component/dist/aframe-mirror-component.min.js"></script>
+</head>
+<body>
+<script>
+    let webSpheres = [];
+    let maxWebSpheres = 6;
+
+    movementSpeed = .5;
+
+    let movementSpeeds = {
+        inside: .2,
+        //inside: 1,
+        warp: 50
+    }
+
+    let cometShapes =  [
+        'primitive: sphere; radius: ',
+        'primitive: sphere; radius: ',
+        'primitive: sphere; radius: ',
+        'primitive: box; width: ',
+        'primitive: cone; radiusBottom: ',
+        'primitive: dodecahedron; radius: ',
+        'primitive: octahedron; radius: ',
+        'primitive: ring; radiusInner: 20; radiusOuter: ',
+        'primitive: tetrahedron; radius: ',
+        'primitive: torus; radius: ',
+    ];
+
+    let songs = [
+        {path: '../../assets/songs/U2/U2 - A Man And A Woman.mp3', movementSpeed: .01},
+        {path: '../../assets/songs/U2/U2 - A Sort Of Homecoming.mp3', movementSpeed: .01},
+        {path: '../../assets/songs/U2/U2 - All Because Of You.mp3', movementSpeed: .01},
+        {path: '../../assets/songs/U2/U2 - An Cat Dubh (Live @ Red Rocks).mp3', movementSpeed: .01},
+        {path: '../../assets/songs/U2/U2 - Bullet The Blue Sky.mp3', movementSpeed: .01},
+        {path: '../../assets/songs/U2/U2 - Desire.mp3', movementSpeed: .01},
+        {path: '../../assets/songs/U2/U2 - Everlasting Love (Subtitulado).mp3', movementSpeed: .01},
+        {path: '../../assets/songs/U2/U2 - One Tree Hill.mp3', movementSpeed: .01},
+        {path: '../../assets/songs/U2/U2 - Promenade.mp3', movementSpeed: .01},
+        {path: '../../assets/songs/U2/U2 - SECONDS.mp3', movementSpeed: .01},
+        {path: '../../assets/songs/U2/U2 - Stay (Far away, so close).mp3', movementSpeed: .01},
+        {path: '../../assets/songs/U2/U2 - The Hands that built America.mp3', movementSpeed: .01},
+        {path: '../../assets/songs/U2/U2 - The Sweetest Thing.mp3', movementSpeed: .01},
+        {path: '../../assets/songs/U2/U2 - Until the end of the world.mp3', movementSpeed: .01},
+        {path: '../../assets/songs/U2/U2 - Walk On (Official Music Video).mp3', movementSpeed: .01},
+        {path: '../../assets/songs/U2/U2 - when you look at the world.mp3', movementSpeed: .01},
+        {path: '../../assets/songs/U2/U2 - White as snow.mp3', movementSpeed: .01},
+        {path: '../../assets/songs/U2/In A Little While - U2.mp3', movementSpeed: .01},
+        {path: '../../assets/songs/U2/Sunday Bloody Sunday - U2 (with lyrics).mp3', movementSpeed: .01},
+        {path: '../../assets/songs/U2/U2 - Beautiful Day (Official Music Video).mp3', movementSpeed: .01},
+        {path: '../../assets/songs/U2/U2 - City Of Blinding Lights.mp3', movementSpeed: .01},
+        {path: '../../assets/songs/U2/U2 - Even Better Than The Real Thing.mp3', movementSpeed: .01},
+        {path: '../../assets/songs/U2/U2 - Hold Me, Thrill Me, Kiss Me, Kill Me (Live).mp3', movementSpeed: .01},
+        {path: '../../assets/songs/U2/U2 - I Will Follow (Live At Red Rocks).mp3', movementSpeed: .01},
+        {path: '../../assets/songs/U2/U2 - Love Is Blindness (Edge’s Solo Performance).mp3', movementSpeed: .01},
+        {path: '../../assets/songs/U2/U2 - One.mp3', movementSpeed: .01},
+        {path: '../../assets/songs/U2/U2 - Please.mp3', movementSpeed: .01},
+        {path: '../../assets/songs/U2/U2 - Pride (In The Name Of Love).mp3', movementSpeed: .01},
+        {path: '../../assets/songs/U2/U2 - So Cruel (Bono’s Solo Performance).mp3', movementSpeed: .01},
+        {path: '../../assets/songs/U2/U2 - Stuck In A Moment You Can\'t Get Out Of (Lyrics).mp3', movementSpeed: .01},
+        {path: '../../assets/songs/U2/U2 - Vertigo.mp3', movementSpeed: .01},
+        {path: '../../assets/songs/U2/U2 - Where The Streets Have No Name.mp3', movementSpeed: .01},
+        {path: '../../assets/songs/U2/U2 - Who\'s Gonna Ride Your Wild Horses.mp3', movementSpeed: .01},
+        {path: '../../assets/songs/U2/Heartland U2.mp3', movementSpeed: .01},
+        {path: '../../assets/songs/U2/U2 - A Man And A Woman.mp3', movementSpeed: .01},
+        {path: '../../assets/songs/U2/U2 - Acrobat.mp3', movementSpeed: .01},
+        {path: '../../assets/songs/U2/U2 - Cedars Of Lebanon (Video).mp3', movementSpeed: .01},
+        {path: '../../assets/songs/U2/U2 - Christmas (Baby Please Come Home).mp3', movementSpeed: .01},
+        {path: '../../assets/songs/U2/U2 - Elevation (Official Music Video).mp3', movementSpeed: .01},
+        {path: '../../assets/songs/U2/U2 - Everlasting Love (Subtitulado).mp3', movementSpeed: .01},
+        {path: '../../assets/songs/U2/U2 - Miracle Drug (Live).mp3', movementSpeed: .01},
+        {path: '../../assets/songs/U2/U2 - Mysterious Ways.mp3', movementSpeed: .01},
+        {path: '../../assets/songs/U2/U2 - October \'October\' (1981).mp3', movementSpeed: .01},
+        {path: '../../assets/songs/U2/U2 - Original Of The Species.mp3', movementSpeed: .01},
+        {path: '../../assets/songs/U2/U2 - Party Girl.mp3', movementSpeed: .01},
+        {path: '../../assets/songs/U2/U2 - Promenade.mp3', movementSpeed: .01},
+        {path: '../../assets/songs/U2/U2 - Running To Stand Still (Lyrics on screen).mp3', movementSpeed: .01},
+        {path: '../../assets/songs/U2/U2 - SECONDS.mp3', movementSpeed: .01},
+        {path: '../../assets/songs/U2/U2 - Sweetest Thing.mp3', movementSpeed: .01},
+        {path: '../../assets/songs/U2/U2 - Tomorrow.mp3', movementSpeed: .01},
+        {path: '../../assets/songs/U2/U2 - Ultra Violet (Light My Way).mp3', movementSpeed: .01},
+        {path: '../../assets/songs/U2/U2 - Until the end of the world.mp3', movementSpeed: .01},
+        {path: '../../assets/songs/U2/U2 - when you look at the world.mp3', movementSpeed: .01},
+        {path: '../../assets/songs/U2/U2 - Window In The Skies (Modernista Version).mp3', movementSpeed: .01},
+        {path: '../../assets/songs/U2/U2 Bad with lyrics.mp3', movementSpeed: .01},
+        {path: '../../assets/songs/U2/U2 moment of surrender lyrics.mp3', movementSpeed: .01},
+        {path: '../../assets/songs/U2/U2-Angel of Harlem - with Lyrics.mp3', movementSpeed: .01},
+        {path: '../../assets/songs/U2/Wave of sorrow U2.mp3s', movementSpeed: .01},
+    ];
+
+    //Sounds
+    let sound_jumpInitiation = new Audio('../../assets/sounds/jumpInitiation_short.wav');
+    let sound_jump = new Audio('../../assets/sounds/jump.wav');
+    let sound_arrival = new Audio('../../assets/sounds/arrival_short.wav');
+    sound_jumpInitiation.volume = .45;
+    sound_jump.volume = .7;
+    sound_arrival.volume = .3;
+
+    let colorGroups = [];
+    for(let h = 0; h < 360; h += 10) {
+        let colors = [];
+        let s = getRndInteger(40, 100);
+        let l = getRndInteger(40, 80);
+        for(let i = 0; i < 7; i++){
+            let color_h = h + getRndInteger(-10, 10);
+            if(color_h < 0) color_h = 0;
+            if(color_h > 360) color_h = 360;
+            let color_s = s + getRndInteger(-20, 40);
+            if(color_s < 0) color_s = 0;
+            if(color_s > 100) color_s = 100;
+            let color_l = l + getRndInteger(-10, 10);
+            if(color_l < 0) color_l = 0;
+            if(color_l > 100) color_l = 100;
+            colors.push([color_h, color_s, color_l]);
+        }
+        colorGroups.push(colors);
+    }
+
+    AFRAME.registerComponent('web-sphere-entity',{
+        schema: {
+            centerVec: { default: [] },
+            active: { default: false },
+            leaving: { default: false },
+            entered: { default: false },
+            outerCometsShape: { default: ''},
+            outerCometsCount: { default: 300},
+            outerOuterCometsShape: { default: ''},
+            outerOuterCometsCount: { default: 200},
+            radius: {default: 200},
+            songPath: {default: ''},
+            audio: {default: {}},
+        },
+        init: function () {
+            this.data.centerVec = [this.el.object3D.position.x,this.el.object3D.position.y,this.el.object3D.position.z];
+            this.data.outerCometsShape = cometShapes[getRndInteger(0, cometShapes.length-1)];
+            this.data.outerOuterCometsShape = cometShapes[getRndInteger(0, cometShapes.length-1)];
+            let colorIndex = getRndInteger(0, colorGroups.length-1);
+            let colorGroup = colorGroups[colorIndex];
+            for(let i = 0; i < this.data.outerCometsCount; i++) {
+                createComet(this.el, this.data.centerVec, getRndInteger(this.data.radius*1.1, this.data.radius*2), this.data.outerCometsShape, colorGroup[getRndInteger(0, colorGroup.length-1)]);
+            }
+            let outerCometsColorIndex = colorIndex + getRndInteger(-3, 3);
+            if(outerCometsColorIndex < 0)outerCometsColorIndex = 0;
+            if(outerCometsColorIndex > colorGroups.length - 1)outerCometsColorIndex = colorGroups.length - 1;
+            colorGroup = colorGroups[outerCometsColorIndex];
+            for(let i = 0; i < this.data.outerCometsCount; i++) {
+                createComet(this.el, this.data.centerVec, getRndInteger(this.data.radius*3, this.data.radius*5), this.data.outerOuterCometsShape, colorGroup[getRndInteger(0, colorGroup.length-1)]);
+            }
+            this.data.audio = new Audio(songs[getRndInteger(0, songs.length-1)].path);
+            this.data.volume = .1;
+            this.data.audio.loop = true;
+        },
+        tick: function () {
+            let camPos = rig.object3D.position;
+            let camV = [camPos.x, camPos.y, camPos.z];
+            let distanceFromOrigin = getMagnitude(subtractVectors(camV, this.data.centerVec ));
+
+            if(this.data.active) {
+                //this.data.audio.volume = (distanceFromOrigin/this.data.radius/2 > 1) ? 1 / distanceFromOrigin/this.data.radius/2 : 1;
+                if (distanceFromOrigin > this.data.radius) {
+                    this.data.audio.pause();
+                    sound_jumpInitiation.currentTime = 0;
+                    sound_jumpInitiation.play();
+                    movementSpeed = movementSpeeds.warp;
+                    createWebSphereInfront(getRndInteger(2000, 6000));
+                    this.data.active = false;
+                    this.data.left = true;
+                }
+            } else {
+                if(distanceFromOrigin < this.data.radius*8 && !this.data.entered) {
+                    sound_arrival.currentTime = 0;
+                    sound_arrival.play();
+                    this.data.entered = true;
+                }
+                if (distanceFromOrigin < this.data.radius) {
+                    movementSpeed = movementSpeeds.inside;
+                    starsystem.object3D.position.set(this.data.centerVec[0], this.data.centerVec[1], this.data.centerVec[2]);
+                    this.data.active = true;
+                    this.data.left = false;
+                    this.data.audio.play();
+                }
+            }
+        }
+    });
+
+    function createWebSphereInfront(spaceDistance){
+        let camPos = rig.object3D.position;
+        let v = getUnitVector(userLookAt);
+        createWebSphere(camPos.x - v[0]*spaceDistance, camPos.y - v[1]*spaceDistance, camPos.z - v[2]*spaceDistance);
+    }
+
+    function createWebSphere(x, y, z, active = false) {
+        let entity = document.createElement('a-entity');
+
+        entity.object3D.position.set(x, y, z);
+        entity.setAttribute('web-sphere-entity', 'active:'+active);
+        entity.setAttribute('gltf-model', '#webSphere');
+        if(Math.random() > .97) { //make a nussstange
+            entity.setAttribute('gltf-model', '#nussstange');
+            entity.setAttribute('web-sphere-entity', 'radius: 600; active:'+active);
+        }
+        entity.setAttribute('animation', 'property: rotation; to: 0 360 0; loop: true; dur: 30000; easing: linear');
+        scene.appendChild(entity);
+
+        webSpheres.push(entity);
+        if(webSpheres.length > maxWebSpheres) {
+            webSpheres.shift().remove();
+        }
+    }
+
+    function createComet(webSphereEntity, webSphereCenter, distance, primitive_type, hsl_color){
+        let v = scalarTimesVector(distance, getUnitVector([getRndInteger(-5, 5), getRndInteger(-5, 5), getRndInteger(-5, 5)]));
+
+        let entity = document.createElement('a-entity');
+        entity.object3D.position.set(v[0], v[1], v[2]);
+        entity.setAttribute('comet', '');
+        let radius = getRndInteger(10, 30);
+        entity.setAttribute('geometry', primitive_type +radius);
+        entity.setAttribute('material', 'color: hsl('+hsl_color[0] +','+hsl_color[1] +'%,'+hsl_color[2] +'%); opacity: .8; shader: flat;');
+
+        let holderEntity = document.createElement('a-entity');
+        holderEntity.object3D.position.set(0, 0, 0);
+        let rotX = getRndInteger(0, 360);
+        let rotY = 0;
+        //let rotZ = getRndInteger(0, 360);
+        let rotZ = 0;
+        let duration = getRndInteger(8000000, 9000000);
+        holderEntity.setAttribute('roatation', rotX + ' ' + rotY + ' ' + rotZ)
+        holderEntity.setAttribute('animation', 'property: rotation; to: '+rotX+360+' ' + rotY + 360*(Math.random()>= 0.5 ? 1 : -1) + ' ' +rotZ+360+'; loop: true; dur: ' + duration + '; easing: linear')
+        holderEntity.appendChild(entity)
+
+        webSphereEntity.appendChild(holderEntity)
+    }
+</script>
+<a-scene background="color: #101010" id="scene" renderer="antialias: true; colorManagement: true; physicallyCorrectLights: false;">
+    <a-entity id="rig" movement position="0 0 0">
+        <a-entity id="camera" camera look-controls></a-entity>
+    </a-entity>
+    <a-assets>
+        <a-asset-item id="webSphere" src="../../assets/gltf/webSphere.gltf"></a-asset-item>
+        <a-asset-item id="duck" src="https://raw.githubusercontent.com/KhronosGroup/glTF-Sample-Models/master/2.0/Duck/glTF/Duck.gltf"></a-asset-item>
+        <a-asset-item id="nussstange" src="../../assets/gltf/nussstange.gltf"></a-asset-item>
+    </a-assets>
+    <a-entity gltf-model="#duck" position="0 0 0" scale="20, 20, 20"></a-entity>
+
+    <a-sphere light="type: point; intensity: 2; distance: 5000; decay: 0" position="0 1.25 -5000" radius="1.25" color="#EF2D5E"></a-sphere>
+    <a-sphere light="type: point; intensity: 2; distance: 5000; decay: 0" position="-5000 0 -5000" radius="1.25" color="#EF2D5E"></a-sphere>
+
+    <a-entity id="starsystem" star-system="radius: 400; depth:5000; count: 50000"></a-entity>
+</a-scene>
+
+<script>
+    //initalize some start Spheres
+    createWebSphere(0,0,0, true);
+    //createWebSphere(getRndInteger(-3000, 3000),getRndInteger(-3000, 3000),getRndInteger(-3000, 3000));
+    //createWebSphere(getRndInteger(-3000, 3000),getRndInteger(-3000, 3000),getRndInteger(-3000, 3000));
+    //createWebSphere(getRndInteger(-3000, 3000),getRndInteger(-3000, 3000),getRndInteger(-3000, 3000));
+</script>
+</body>
+
+</html>
